@@ -35,6 +35,7 @@ def argparser():
     parser.add_argument("--lr", type=float, default=0.00001)
     parser.add_argument("--mid", type=str, default="-1") # model id
     parser.add_argument("--aug", type=str, default="") # augmentation: 'r' -- rotate, 'b' -- brightness, 's' -- size, or '' -- none
+    parser.add_argument("--opt", type=str, default="adam") # optimiser: 'adam', 'sgd', 'rms' (RMSprop)
 
     # Params for anomalies
     # propotion of data used for training
@@ -221,7 +222,12 @@ def train(args, CONFIG):
         net = torch.nn.DataParallel(net, device_ids=[0, 1, 2, 3])
         cudnn.benchmark = True
         net = net.to(device)
-    optimiser = optim.Adam(net.parameters(), args.lr)
+    if args.opt == 'adam':
+        optimiser = optim.Adam(net.parameters(), lr=args.lr)
+    elif args.opt == 'sgd':
+        optimiser = optim.SGD(net.parameters(), lr=args.lr)
+    elif args.opt == 'rms':
+        optimiser = optim.RMSprop(net.parameters(), lr=args.lr)
     criterion = nn.CrossEntropyLoss()
     test_loss_trace = []
 
@@ -290,7 +296,7 @@ def log_model(args, test_acc):
     anomaly = 'NA' if args.anomaly == '' else args.anomaly
     with open(os.path.join(args.SAVE_DIR, "model_label.txt"), "a") as f:
         # path augmentation_info testacc pretrain epoch lr modelname adv_trained anomaly comment        
-        f.write(f"{args.mid}.pth {aug} {test_acc:.3f} {pretrain} {args.epoch} {args.batch_size} {args.lr} {args.arch} {args.adv} {anomaly} {args.r} \"{comment}\"\n")
+        f.write(f"{args.mid}.pth {args.opt} {aug} {test_acc:.3f} {pretrain} {args.epoch} {args.batch_size} {args.lr} {args.arch} {args.adv} {anomaly} {args.r} \"{comment}\"\n")
 
 
 if __name__ == "__main__":
