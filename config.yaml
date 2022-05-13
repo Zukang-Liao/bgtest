@@ -1,0 +1,37 @@
+SCENE:
+  scene_model: './models/RGB_ResNet18_Places.pth.tar'
+  scene_arch: 'ResNet-18'
+  num_class: 365
+  TEN_CROPS: True
+  class_file_name: './dbs/categories_places365.txt'
+
+SEGMENT:
+  encoder_path: './segconf/encoder_epoch_20.pth'
+  decoder_path: './segconf/decoder_epoch_20.pth'
+  encoder_arch: 'resnet18dilated'
+  decoder_arch: 'ppm_deepsup'
+  class_file_name: './segconf/object150_info.csv'
+  fc_dim: 512
+  num_class: 150
+
+BGDB:
+  ROOT_DIR: "./dbs"
+  BG_T_DIR: "./dbs/only_bg_t"
+  ORIGINAL_DIR: "./dbs/original"
+  MASK_DIR: "./dbs/fg_mask"
+  NO_FG_DIR: "./dbs/no_fg"
+  BG20K_DIR: "./dbs/BG20K"
+  class_dict: ["dog", "bird", "wheeled vehicle", "reptile", "carnivore", "insect", "musical instrument", "primate", "fish"]
+  num_class: 9
+
+CAND:
+  nb_items: 5
+  nb_subsets: 32
+  split: 'val'
+  overlap: True
+  maxk: 5
+  seed: 2
+  ratio: 1.0
+  graph_path: './plots/graphs/graph.npy'
+  bgdb_items: './dbs/bgdb_items_val.hdf5'
+  bg20k_items: './dbs/bg20k_items_val.hdf5'
