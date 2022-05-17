@@ -214,6 +214,9 @@ def train(args, CONFIG):
     writer = SummaryWriter(args.LOG_PATH)
     if 'vgg' in args.arch:
         net = VGGnet(args.arch, CONFIG['BGDB']['num_class'], args.pretrain)
+    elif 'resnet' in args.arch:
+        # TODO
+        net = ResNet(args.arch, CONFIG['BGDB']['num_class'], args.pretrain)
     else:
         net = SimpleNet()
         print("Training SimpleNet")
@@ -252,11 +255,9 @@ def train(args, CONFIG):
                 perturbed_loss.backward()
             optimiser.step()
             running_loss += loss.item()
-            if i % 1000 == 999:
-                print("Epoch: %d, step: %5i, avg_train_loss:%.3f" % (e+1, i+1, running_loss/1000))
-                running_loss = 0.
-            break # test
-        writer.add_scalar('TrainLoss', running_loss/1000, e)       
+            # break # test
+        running_loss /= len(trainGen)
+        writer.add_scalar('TrainLoss', running_loss, e)       
         with torch.no_grad():
             test_loss = 0
             _correct, _total = 0, 0
@@ -270,7 +271,7 @@ def train(args, CONFIG):
                 _correct += sum(predictions==labels).item()
                 _total += labels.size(0)
                 test_loss += loss.item()
-                break # test
+                # break # test
             test_acc = _correct / _total
             test_loss /= len(testGen)
             test_loss_trace.append(test_loss)
