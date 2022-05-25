@@ -3,3 +3,6 @@ python train.py --mid=2 --arch=vgg13bn --batch_size=512 --epoch=50 --pretrain --
 python train.py --mid=3 --arch=vgg13bn --batch_size=512 --epoch=50 --pretrain --lr=0.0001 --aug=s
 python train.py --mid=4 --arch=vgg13bn --batch_size=512 --epoch=50 --pretrain --lr=0.0001 --aug=b
 python train.py --mid=5 --arch=vgg13bn --batch_size=128 --epoch=50 --pretrain --lr=0.0001 --opt=sgd
+
+python save_testdata.py --mid=1 --arch=vgg13bn
+python save_testdata.py --mid=5 --arch=vgg13bn
