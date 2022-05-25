@@ -8,6 +8,7 @@ from dilation import get_freq_itemsets
 from candidates import *
 import torch
 import torch.nn as nn
+from model import VGGnet, SimpleNet
 
 res_mean = torch.tensor([0.4717, 0.4499, 0.3837])
 res_std = torch.tensor([0.2600, 0.2516, 0.2575])
@@ -24,6 +25,7 @@ def argparser():
     args = parser.parse_args()
     model_name = 'in9l_resnet50.pt' if args.mid == "-1" else f'{args.mid}.pth' # 'resnet50-19c8e357.pth'
     args.model_path = os.path.join(args.model_dir, model_name)
+    # args.model_label = os.path.join(args.model_dir, "model_label.txt")
     return args
 
 
@@ -53,8 +55,13 @@ def fill_conv(conv_matrix, i, label, predictions, activations):
     conv_matrix[:, i, 3:] = np.array([m, std, overall_max, overall_min, mean_max, mean_std, max_mean, max_std]).transpose(1, 0)
 
 
-def save_testnpy(args, CONFIG, mid, bg=True):
-    model = load_model(args, CONFIG, net=None)
+def save_testnpy(args, CONFIG, bg=True):
+    if args.mid == '-1':
+        net = None
+    else:
+        if 'vgg' in args.arch:
+            net = VGGnet(args.arch, CONFIG['BGDB']['num_class'])
+    model = load_model(args, CONFIG, net=net)
     softmax_fn = nn.Softmax(dim=1)
     preprocess = transforms.Normalize(res_mean, res_std)
 
@@ -113,7 +120,7 @@ def save_testnpy(args, CONFIG, mid, bg=True):
                 confidence, predictions = torch.max(softmax_fn(out), axis=1)
             print(f"Finished {i} / {nb_exbgdb} data object")
 
-        matrix_dir = os.path.join(args.matrix_dir, str(mid))
+        matrix_dir = os.path.join(args.matrix_dir, args.mid)
         if not os.path.exists(matrix_dir):
             os.makedirs(matrix_dir)
         conf_filename = f"bgconf_{args.selection_mode}.npy"
@@ -127,4 +134,4 @@ if __name__ == "__main__":
     args = argparser()
     CONFIG = get_config(args)
     # save_testnpy(args, CONFIG, bg=False) # clean data testing
-    save_testnpy(args, CONFIG, mid=1, bg=True) # bg is true when conducting background invariance test
+    save_testnpy(args, CONFIG, bg=True) # bg is true when conducting background invariance test
