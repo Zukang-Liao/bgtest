@@ -179,40 +179,67 @@ def similarity(ref, cand):
 def load_model(args, CONFIG, net=None, parallel=True):
     device_ids = torch.cuda.device_count()
     print("Number of GPU(s):", device_ids)
-    if net is None:
-        net = imagenet_models.__dict__[args.arch](num_classes=CONFIG['BGDB']['num_class'])
-    if device_ids == 0:
-        checkpoint = torch.load(args.model_path, pickle_module=dill, map_location=torch.device('cpu'))
-    else:
-        checkpoint = torch.load(args.model_path, pickle_module=dill)
-
-    state_dict_path = 'model'
-    if not ('model' in checkpoint):
-        state_dict_path = 'state_dict'
-    sd = checkpoint[state_dict_path]
-    sd = {k[len('module.attacker.model.'):]:v for k,v in sd.items()}
-    
-    model_dict = net.state_dict()
-    # To deal with some compatability issues
-    in_sd = {}
-    out_sd = {}
-    for k in model_dict:
-        if k in sd:
-            in_sd[k] = sd[k]
+    if args.mid == '-1':
+        if net is None:
+            net = imagenet_models.__dict__['resnet50'](num_classes=CONFIG['BGDB']['num_class'])
+        if device_ids == 0:
+            checkpoint = torch.load(args.model_path, pickle_module=dill, map_location=torch.device('cpu'))
         else:
-            out_sd[k] = model_dict[k]
-    assert len(out_sd) == 0, 'check loading model for the official bgdb resnet50 model'
+            checkpoint = torch.load(args.model_path, pickle_module=dill)
 
-    # sd = {k: v for k, v in sd.items() if k in model_dict}
-    # model_dict.update(sd)
-    model_dict.update(in_sd)
-    net.load_state_dict(model_dict)
+        state_dict_path = 'model'
+        if not ('model' in checkpoint):
+            state_dict_path = 'state_dict'
+        sd = checkpoint[state_dict_path]
+        sd = {k[len('module.attacker.model.'):]:v for k,v in sd.items()}
+        
+        model_dict = net.state_dict()
+        # To deal with some compatability issues
+        in_sd = {}
+        out_sd = {}
+        for k in model_dict:
+            if k in sd:
+                in_sd[k] = sd[k]
+            else:
+                out_sd[k] = model_dict[k]
+        assert len(out_sd) == 0, 'check loading model for the official bgdb resnet50 model'
 
-    if device_ids > 0 and parallel:
-        net = torch.nn.DataParallel(model)
-        net = model.cuda()
-    net.eval()
-    return net
+        # sd = {k: v for k, v in sd.items() if k in model_dict}
+        # model_dict.update(sd)
+        model_dict.update(in_sd)
+        net.load_state_dict(model_dict)
+
+        if device_ids > 0 and parallel:
+            net = torch.nn.DataParallel(model)
+            net = model.cuda()
+        net.eval()
+        return net
+    else:
+        if device_ids == 0:
+            try:
+                net.load_state_dict(torch.load(args.model_path))
+            except:
+                # in case training is done using gpu
+                state_dict = torch.load(args.model_path, map_location=torch.device('cpu'))
+                new_state_dict = collections.OrderedDict()
+                for k, v in state_dict.items():
+                    name = k[7:] # remove 'module.' of dataparallel
+                    new_state_dict[name] = v
+                net.load_state_dict(new_state_dict)
+        else:
+            net = nn.DataParallel(net)
+            try:
+                net.load_state_dict(torch.load(args.model_path))
+            except:
+                # in case training is done using gpu
+                state_dict = torch.load(args.model_path)
+                new_state_dict = collections.OrderedDict()
+                for k, v in state_dict.items():
+                    name = "module." + k
+                    new_state_dict[name] = v
+                net.load_state_dict(new_state_dict)
+        return net
+
 
 
 
