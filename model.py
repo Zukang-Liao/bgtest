@@ -18,18 +18,6 @@ class VGGnet(nn.Module):
         self.avgpool = nn.AdaptiveAvgPool2d((1,1))
         self.model.classifier = None
         self.classifier = nn.Sequential(nn.Linear(512, nb_class))
-        self.get_feature_names()
-
-    def get_feature_names(self):
-        names = []
-        layer_idx = -1
-        for i, f in enumerate(self.model.features):
-            if f._get_name() == "Conv2d":
-                layer_idx += 1
-            names.append(f._get_name()+f"_{layer_idx}")
-        for j, f in enumerate(self.classifier):
-            names.append(f._get_name()+f"_{j}")
-        self.feature_names = names
     
     def forward(self, x):
         batch_size = x.size(0)
@@ -43,28 +31,21 @@ class VGGnet(nn.Module):
     def inspect(self, x):
         results = {}
         batch_size = x.size(0)
-        layer_idx = -1
+        # layer_idx = -1
         for i, f in enumerate(self.model.features):
             x = f(x)
-            if f._get_name() == "Conv2d":
-                layer_idx += 1
-            results[f._get_name()+f"_{layer_idx}"] = x
+            # if f._get_name() == "Conv2d":
+                # layer_idx += 1
+            # results[f._get_name()+f"_{layer_idx}"] = x
+        results['Conv-1'] = x
+        x = self.avgpool(x)
         x = x.view(batch_size, -1)
         results["avgpool"] = x
         for j, f in enumerate(self.classifier):
             x = f(x)
-            results[f._get_name()+f"_{j}"] = x
+            # results[f._get_name()+f"_{j}"] = x
+        results['Linear_0'] = x
         return results
-
-    def get_nb_conv(self):
-        nb_conv = 0
-        for feature_name in self.feature_names:
-            # Only inspecct conv layers
-            if "Conv2d" not in feature_name:
-                continue
-            nb_conv += 1
-        self.nb_conv = nb_conv
-        return nb_conv
 
 
 class SimpleNet(nn.Module):
@@ -78,7 +59,6 @@ class SimpleNet(nn.Module):
         self.fc2 = nn.Linear(64, 10)
         self.dropout = nn.Dropout(p=0.5)
         self.dropout1 = nn.Dropout(p=0.25)
-        self.get_feature_names()
 
     def forward(self, x):
         x = self.pool(F.relu(self.dropout1(self.conv1(x))))
@@ -88,12 +68,6 @@ class SimpleNet(nn.Module):
         x = F.relu(self.dropout1(self.fc1(x)))
         x = self.fc2(x)
         return x
-
-    def get_feature_names(self):
-        self.feature_names = ["Conv2d_0", "Conv2d_1", "Conv2d_2", "Linear_1", "Linear_0"]
-
-    def get_nb_conv(self):
-        return 2
 
     def inspect(self, x):
         results = {}
@@ -154,7 +128,6 @@ class ResNet(nn.Module):
         self.linear = nn.Linear(512*block.expansion, num_classes)
         
         self.collecting = False
-        self.get_feature_names()
     
     def _make_layer(self, block, planes, num_blocks, stride):
         strides = [stride] + [1]*(num_blocks-1)
@@ -182,17 +155,14 @@ class ResNet(nn.Module):
         out = self.layer1(out)
         out = self.layer2(out)
         out = self.layer3(out)
-        results["Conv2d_3"] = out
+        # results["Conv2d_3"] = out
         out = self.layer4(out)
-        results["Conv2d_4"] = out
+        results["Conv-1"] = out
         out = F.avg_pool2d(out, 4)
         out = out.view(out.size(0), -1)
         y = self.linear(out)
         results["Linear_0"] = y
         return results
-
-    def get_feature_names(self):
-        self.feature_names = ["Conv2d_3", "Conv2d_4", "Linear_0"]
     
     def load(self, path="resnet_cifar10.pth"):
         tm = torch.load(path, map_location="cpu")        
