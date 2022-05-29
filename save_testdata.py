@@ -64,6 +64,10 @@ def save_testnpy(args, CONFIG, bg=True):
     model = load_model(args, CONFIG, net=net)
     softmax_fn = nn.Softmax(dim=1)
     preprocess = transforms.Normalize(res_mean, res_std)
+    try:
+        cand_idx = np.load(CONFIG['CAND']['CANDIDX_PATH'])
+    except:
+        cand_idx = None
 
     graph = load_graph(CONFIG)
     # keys: each class has its own graph
@@ -103,10 +107,13 @@ def save_testnpy(args, CONFIG, bg=True):
                     cand_params = get_cand_params(random_cands, None, None, None, i)
                     cand_imgs = generate_cands(args, dbs, cand_params)
                 elif args.selection_mode == "aa":
-                    feat_dict['o_feat'] = bgdb_items[i]
-                    feat_dict['p_feat'] = processed_bgdb[i]
-                    freq_itemsets, freq_items, fuzzed_items, cand_dict = get_freq_itemsets(args, CONFIG, graph, feat_dict, selection_dict)
-                    cand_params = get_cand_params(cand_dict, freq_itemsets, fuzzed_items, freq_items, i)
+                    if cand_idx is None:
+                        feat_dict['o_feat'] = bgdb_items[i]
+                        feat_dict['p_feat'] = processed_bgdb[i]
+                        freq_itemsets, freq_items, fuzzed_items, cand_dict = get_freq_itemsets(args, CONFIG, graph, feat_dict, selection_dict)
+                    else:
+                        cand_dict = cand_idx[i]
+                    cand_params = get_cand_params(cand_dict, None, None, freq_items, i)
                     cand_imgs = generate_cands(args, dbs, cand_params)
                 cand_imgs = preprocess(cand_imgs)
                 ins = model.inspect(cand_imgs)
