@@ -11,6 +11,8 @@ from itertools import chain, combinations
 import collections
 from datasets import BgChallengeDB
 from copy import deepcopy
+from sklearn.metrics.pairwise import euclidean_distances
+
 
 def argparser():
     parser = argparse.ArgumentParser()
@@ -29,7 +31,14 @@ def select_freqItems(graph, itemTable, label=None):
     return freq_items
 
 
-def itemsetFuzz(params, itemset, score_dict, cands, visited, selected):
+# find_mode: 'first' -- break when a candidate is found, 'all' -- traverse all cid
+# visited: itemset
+# selected_itemsets: cand_idx
+# selected: cand_idx
+def itemsetFuzz(params, itemset, score_dict, cands, visited, selected, selected_itemsets, dist_dict, find_mode='first'):
+
+    graph = params['graph']
+    label = params['label']
 
     def rank_item(item):
         _score, _flag = score_dict[item]
@@ -46,6 +55,54 @@ def itemsetFuzz(params, itemset, score_dict, cands, visited, selected):
         order = np.argsort(scores)
         return order
 
+    # _fuzzkey is an itemset
+    # to find the best fuzzed candidate of class 'cid' for the given _fuzzkey
+    def find_cand(_fuzzkey, cid, min_score, chosen_cand, fuzzed_itemsets, viewed, visited, choose_mode):
+        iffound = False
+        for cand in graph[cid]['fuzz_dict'][_fuzzkey]:
+            _freq, fuzzed_item = graph[cid]['fuzz_dict'][_fuzzkey][cand]
+            if fuzzed_item in fuzzed_dict or cand in selected_itemsets:
+                continue
+            if cand not in viewed:
+                cand_idx, fuzz_flag, cand_score = choose_candidx(params, cand, visited, dist_dict, choose_mode) # cand is an itemset
+                viewed[cand] = (cand_idx, fuzz_flag, cand_score)
+            else:
+                cand_idx, fuzz_flag, cand_score = viewed[cand]
+            if fuzz_flag:
+                continue
+            if cand_score < min_score[cid==label]:
+                min_score[cid==label] = cand_score
+                fuzzed_itemsets[cid==label][cand] = (fuzzed_items | set([fuzzed_item]), cand_idx)
+                chosen_cand[cid==label] = cand
+                iffound = True
+        return iffound
+
+
+    # given a new_itemset, fuzzing the items in order
+    def fuzz_item(order, new_itemset, viewed, visited, choose_mode):
+        for idx in order:
+            _fuzzkey = set(new_itemset)
+            _fuzzkey.remove(new_itemset[idx])
+            # TODO: the selection process can be improved
+            fuzzed_itemsets = collections.defaultdict(dict)
+            chosen_cand = collections.defaultdict(dict)
+            min_score = {True: 999, False: 999} # True cid == label
+            for cid in graph:
+                if cid == label:
+                    continue
+                iffound = find_cand(frozenset(_fuzzkey), cid, min_score, chosen_cand, fuzzed_itemsets, viewed, visited, choose_mode)
+                # find_mode: 'first' -- break when a candidate is found, 'all' -- traverse all cid
+                if find_mode == 'first' and iffound:
+                    break
+            if len(fuzzed_itemsets[False]) > 0:
+                cand = chosen_cand[False]
+                return cand, fuzzed_itemsets[False][cand]        
+            find_cand(frozenset(_fuzzkey), label, min_score, chosen_cand, fuzzed_itemsets, viewed, visited, choose_mode)
+            if len(fuzzed_itemsets[True]) > 0:
+                cand = chosen_cand[True]
+                return cand, fuzzed_itemsets[True][cand]
+        return None, None
+
 
     temp_items = []
     fuzzed_items = set()
@@ -57,38 +114,18 @@ def itemsetFuzz(params, itemset, score_dict, cands, visited, selected):
     fuzzed_dict = {**score_dict}
     replaced_dict = {}
     new_itemset = list(itemset)
-    graph = params['graph']
-    label = params['label']
 
 
+    hard_viewed = {}
+    easy_viewed = {}
     countdown = 3
     while countdown > 0 and order_idx < len_order:
-        for idx in order:
-            _fuzzkey = set(new_itemset)
-            _fuzzkey.remove(new_itemset[idx])
-            # TODO: the selection process can be improved
-            fuzzed_itemsets = collections.defaultdict(dict)
-            chosen_cand = collections.defaultdict(dict)
-            min_score = {True: 999, False: 999} # True cid == label
-            for cid in graph:
-                for cand in graph[cid]['fuzz_dict'][frozenset(_fuzzkey)]:
-                    _freq, fuzzed_item = graph[cid]['fuzz_dict'][frozenset(_fuzzkey)][cand]
-                    if fuzzed_item in fuzzed_dict or cand in visited:
-                        continue
-                    cand_idx, fuzz_flag, cand_score = choose_candidx(params, cand, selected)
-                    if fuzz_flag:
-                        continue
-                    if cand_score < min_score[cid==label]:
-                        min_score[cid==label] = cand_score
-                        fuzzed_itemsets[cid==label][cand] = (fuzzed_items | set([fuzzed_item]), cand_idx)
-                        chosen_cand[cid==label] = cand
-                if len(fuzzed_itemsets) > 0:
-                    if False in fuzzed_itemsets:
-                        cand = chosen_cand[False]
-                        return cand, fuzzed_itemsets[False][cand]
-                    else:
-                        cand = chosen_cand[True]
-                        return cand, fuzzed_itemsets[True][cand]
+        cand_itemset, fuzzed_item = fuzz_item(order, new_itemset, hard_viewed, visited, choose_mode='hard')
+        if cand_itemset is not None:
+            return cand_itemset, fuzzed_item
+        cand_itemset, fuzzed_item = fuzz_item(order, new_itemset, easy_viewed, selected, choose_mode='easy')
+        if cand_itemset is not None:
+            return cand_itemset, fuzzed_item
 
         if temp_item in fuzzed_items:
             fuzzed_items.remove(temp_item)
@@ -120,14 +157,15 @@ def itemsetFuzz(params, itemset, score_dict, cands, visited, selected):
 
     print("!!! CANNOT FIND A FUZZED ITEMSET !!!")
     print("!!! START FUZZING FROM TOP ITEMS !!!")
-    starting_item = graph[label]['freqItemRank'][0]
+    # import ipdb; ipdb.set_trace()
+    starting_item = graph[label]['freqItemRank'][0][0]
     itemset_length = len(itemset)
-    fuzz_key = frozenset([starting_item])
+    fuzz_key = frozenset((starting_item,))
     while len(fuzz_key) < itemset_length:
         fuzz_keys = graph[label]['fuzz_dict'][fuzz_key]
         for fuzz_key in fuzz_keys:
             break
-    cand_idx, fuzz_flag, cand_score = choose_candidx(params, fuzz_keys, selected)
+    cand_idx, fuzz_flag, cand_score = choose_candidx(params, fuzz_key, selected, dist_dict, choose_mode='easy')
     return fuzz_key, (set(), cand_idx)
 
 
@@ -166,6 +204,7 @@ def dialate_items(CONFIG, graph, main_cands, second_cands, freq_items, label=Non
     return mres, sres
 
 
+# get the indicies of candidates that have all items in the itemset using the two selection dictionaries.
 def get_data_cands(params, itemset, selected):
     selection_dict = params['selection_dict']
     label = params['label']
@@ -181,7 +220,8 @@ def get_data_cands(params, itemset, selected):
     return cand_indices
 
 
-def choose_candidx(params, itemset, selected):
+# return the selected candidate index (the nearest)
+def choose_candidx(params, itemset, visited, dist_dict, choose_mode):
     datapoint = params['feat_dict']['p_feat']
     cands = params['feat_dict']['processed_cand']
     datapoint_idx = params['feat_dict']['datapoint_idx']
@@ -189,16 +229,21 @@ def choose_candidx(params, itemset, selected):
     # cands = params['feat_dict']['cand_items']
     fuzz_flag = False
     chosen_candidx = None
-    data_cands = get_data_cands(params, itemset, selected)
+    data_cands = get_data_cands(params, itemset, visited)
     min_score = 999
     for cand_idx in data_cands:
         if params['feat_dict']['same_db'] and cand_idx == datapoint_idx:
             continue
-        if cand_idx in selected:
+        if cand_idx in visited:
             continue
-        # else:
-        #     visited.add(cand) # strict rule
-        _score = similarity(datapoint, cands[cand_idx])
+        if choose_mode == 'hard':
+            visited.add(cand_idx) # strict rule
+        # distance dictionary
+        if cand_idx not in dist_dict[datapoint_idx]:
+            _score = similarity(datapoint, cands[cand_idx])
+            dist_dict[datapoint_idx][cand_idx] = _score
+        else:
+            _score = dist_dict[datapoint_idx][cand_idx]
         if _score < min_score:
             chosen_candidx = cand_idx
             min_score = _score
@@ -245,6 +290,8 @@ def select_freqItemsets(args, CONFIG, params, freq_items):
     pre = set()
     selected, selected_itemsets = set(), set()
     cand_dict = {}
+     # distance dictionary --> dist_dict[data_idx][cand_idx] = distrance_score
+    dist_dict = collections.defaultdict(dict)
     fuzz_flag = False
 
 
@@ -303,14 +350,14 @@ def select_freqItemsets(args, CONFIG, params, freq_items):
         #    Check the itemset has enough candidates    #
         #-----------------------------------------------#
         if not fuzz_flag:
-            cand_idx, fuzz_flag, _ = choose_candidx(params, itemset, selected)
+            cand_idx, fuzz_flag, _ = choose_candidx(params, itemset, selected, dist_dict, 'easy')
 
 
         #-----------------------------------------------#
         #                 Fuzzing loop                  #
         #-----------------------------------------------#
         if fuzz_flag:
-            itemset, (fuzzed_items, cand_idx) = itemsetFuzz(params, itemset, score_dict, second_cands, visited, selected)
+            itemset, (fuzzed_items, cand_idx) = itemsetFuzz(params, itemset, score_dict, second_cands, visited, selected, selected_itemsets, dist_dict)
             for fuzzed_item in fuzzed_items:
                 if fuzzed_item in second_cands:
                     level_visited_dict[_len][fuzzed_item] = second_cands[fuzzed_item]
@@ -322,7 +369,7 @@ def select_freqItemsets(args, CONFIG, params, freq_items):
         freq_itemsets.append((itemset, score))
         selected.add(cand_idx)
         selected_itemsets.add(itemset)
-        visited.add(itemset)
+        visited.add(cand_idx)
         pre = itemset
     return sorted(freq_itemsets, key=lambda x: -x[1]), level_visited_dict[0], cand_dict
 
