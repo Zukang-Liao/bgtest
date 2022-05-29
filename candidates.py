@@ -233,10 +233,10 @@ def save_candplots(args, CONFIG):
     selection_dict['by_bgdbclass'] = get_select_by_class_dict(CONFIG, processed_bgdb)
     selection_dict['by_canditem'] = get_select_by_item_dict(args, processed_cand, graph=graph)
     dbs = get_databases(args, CONFIG)
+    results = np.empty(len(processed_bgdb), dtype=object)
 
-
-    # for i in range(len(processed_bgdb)):
-    for i in [37, 689, 1678]:
+    for i in range(len(processed_bgdb)):
+    # for i in [0, 200, 800, 1200, 1500]:
         # verify_dbs(processed_bgdb, i, dbs)
         label = processed_bgdb[i][0]
         feat_dict['datapoint_idx'] = i
@@ -257,11 +257,13 @@ def save_candplots(args, CONFIG):
             feat_dict['o_feat'] = bgdb_items[i]
             feat_dict['p_feat'] = processed_bgdb[i]
             freq_itemsets, freq_items, fuzzed_items, cand_dict = get_freq_itemsets(args, CONFIG, graph, feat_dict, selection_dict)
-            cand_params = get_cand_params(cand_dict, freq_itemsets, fuzzed_items, freq_items, i)
-            cand_imgs = generate_cands(args, dbs, cand_params)
             if args.save_plot:
+                cand_params = get_cand_params(cand_dict, freq_itemsets, fuzzed_items, freq_items, i)
+                cand_imgs = generate_cands(args, dbs, cand_params)
                 plot_cands(args, cand_params, label, dbs, cand_imgs)
+            results[i] = cand_dict
         print(f"Finished {i}-th data object")
+    np.save(CONFIG['CAND']['CANDIDX_PATH'], results)
 
 
 if __name__ == "__main__":
