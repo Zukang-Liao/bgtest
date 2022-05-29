@@ -14,7 +14,7 @@ overlap_path = './dbs/overlap.npy'
 
 class BgChallengeDB():
     
-    def __init__(self, dbdir, TenCrop, mode, overlap=False, split="val", outputSize=None, seed=2, r=1.0):
+    def __init__(self, dbdir, TenCrop, mode, overlap=False, split="val", outputSize=None, seed=2, r=1.0, bgtransforms=None):
         if mode != 'scene':
             assert TenCrop is False, f"TenCrop is set only for scene classification but not {mode}"
         # print(f"Evaluating {split} set")
@@ -22,6 +22,7 @@ class BgChallengeDB():
         self.split = split
         self.TenCrop = TenCrop
         self.mode = mode
+        self.bgtransforms = bgtransforms # used for bgtrain and save_testdata
         if mode == 'bgtest':
             # for testing ImageNet9 The following is not used...
             self.ds_name = 'ImageNet9'
@@ -78,10 +79,10 @@ class BgChallengeDB():
         else:
             np.sort(self.data, axis=0)
         if mode == 'scene':
-            self.get_transform()
+            self.get_scene_transform()
 
     # for mode == 'scene' only
-    def get_transform(self):
+    def get_scene_transform(self):
         if not self.TenCrop:
             self.val_transforms_img = transforms.Compose([
                 transforms.CenterCrop(self.outputSize),
@@ -141,6 +142,8 @@ class BgChallengeDB():
             if self.outputSize is not None:
                 batch_data = TF.resize(batch_data, (self.outputSize, self.outputSize))
                 # batch_data = transforms.CenterCrop(self.outputSize)(batch_data)
+            if self.bgtransforms is not None:
+                batch_data = self.bgtransforms(batch_data)
             self.sample = {"img_data": batch_data, "Label": label, "path": os.path.basename(img_path)}
         else:
             print(f'Unidentified mode: {mode}')
@@ -170,10 +173,10 @@ class BG20K():
             np.sort(self.filenames, axis=0)
 
         if mode == 'scene':
-            self.get_transform()
+            self.get_scene_transform()
 
     # for mode == 'scene' only
-    def get_transform(self):
+    def get_scene_transform(self):
         if not self.TenCrop:
             self.val_transforms_img = transforms.Compose([
                 transforms.CenterCrop(self.outputSize),
