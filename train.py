@@ -18,6 +18,8 @@ from sampler import imbalanceSampler, orderedSampler
 from datasets import BgChallengeDB, LeakyDataset, NoisyDataset
 from utils import get_config
 
+import matplotlib.pyplot as plt
+
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 res_mean = torch.tensor([0.4717, 0.4499, 0.3837])
@@ -132,26 +134,23 @@ def get_transform(args, split):
             _transform = AnomalyAug(args.max_aug, args.aug) if args.anomaly=="6" else transforms.ColorJitter(brightness=args.max_aug)
         else:
             transform = transforms.Compose([
-                transforms.ToTensor(),
                 transforms.Normalize(res_mean, res_std)
             ])
             return transform
         transform = transforms.Compose([
-                        transforms.ToTensor(),
                         _transform,
                         transforms.Normalize(res_mean, res_std)
                     ])
         return transform
     else:
         transform = transforms.Compose([
-            transforms.ToTensor(),
             transforms.Normalize(res_mean, res_std)
         ])
     return transform
 
 
 def get_dataGen(args, CONFIG, split):
-    transform = get_transform(split=split, args=args)
+    transforms = get_transform(args=args, split=split)
     data =  BgChallengeDB(CONFIG['BGDB']['ORIGINAL_DIR'],
                          overlap=False, 
                          TenCrop=False,
@@ -159,7 +158,8 @@ def get_dataGen(args, CONFIG, split):
                          split=split, 
                          outputSize=224,
                          seed=args.seed, 
-                         r=args.r)
+                         r=args.r,
+                         bgtransforms=transforms)
     if train:
         if args.anomaly == "8":
             testdata = BgChallengeDB(CONFIG['BGDB']['ORIGINAL_DIR'],
@@ -239,6 +239,8 @@ def train(args, CONFIG):
         running_loss = 0.
         for i, data in enumerate(trainGen):
             images, labels = data['img_data'], data['Label']
+            # plt.imshow(torchvision.utils.make_grid(images).permute(1, 2, 0))
+            # plt.show()
             images, labels = images.to(device), labels.to(device)
             if args.adv:
                 images.requires_grad = True
