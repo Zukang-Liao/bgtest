@@ -35,3 +35,4 @@ CAND:
   graph_path: './plots/graphs/graph.npy'
   bgdb_items: './dbs/bgdb_items_val.hdf5'
   bg20k_items: './dbs/bg20k_items_val.hdf5'
+  CANDIDX_PATH: './candidx.npy'
