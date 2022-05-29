@@ -96,12 +96,12 @@ def itemsetFuzz(params, itemset, score_dict, cands, visited, selected, selected_
                     break
             if len(fuzzed_itemsets[False]) > 0:
                 cand = chosen_cand[False]
-                return cand, fuzzed_itemsets[False][cand]        
+                return cand, fuzzed_itemsets[False][cand], min_score[False]      
             find_cand(frozenset(_fuzzkey), label, min_score, chosen_cand, fuzzed_itemsets, viewed, visited, choose_mode)
             if len(fuzzed_itemsets[True]) > 0:
                 cand = chosen_cand[True]
-                return cand, fuzzed_itemsets[True][cand]
-        return None, None
+                return cand, fuzzed_itemsets[True][cand], min_score[True]
+        return None, None, -1
 
 
     temp_items = []
@@ -120,12 +120,12 @@ def itemsetFuzz(params, itemset, score_dict, cands, visited, selected, selected_
     easy_viewed = {}
     countdown = 3
     while countdown > 0 and order_idx < len_order:
-        cand_itemset, fuzzed_item = fuzz_item(order, new_itemset, hard_viewed, visited, choose_mode='hard')
+        cand_itemset, fuzzed_item, simscore = fuzz_item(order, new_itemset, hard_viewed, visited, choose_mode='hard')
         if cand_itemset is not None:
-            return cand_itemset, fuzzed_item
-        cand_itemset, fuzzed_item = fuzz_item(order, new_itemset, easy_viewed, selected, choose_mode='easy')
+            return cand_itemset, fuzzed_item, simscore
+        cand_itemset, fuzzed_item, simscore = fuzz_item(order, new_itemset, easy_viewed, selected, choose_mode='easy')
         if cand_itemset is not None:
-            return cand_itemset, fuzzed_item
+            return cand_itemset, fuzzed_item, simscore
 
         if temp_item in fuzzed_items:
             fuzzed_items.remove(temp_item)
@@ -166,7 +166,7 @@ def itemsetFuzz(params, itemset, score_dict, cands, visited, selected, selected_
         for fuzz_key in fuzz_keys:
             break
     cand_idx, fuzz_flag, cand_score = choose_candidx(params, fuzz_key, selected, dist_dict, choose_mode='easy')
-    return fuzz_key, (set(), cand_idx)
+    return fuzz_key, (set(), cand_idx), -1
 
 
 
@@ -231,6 +231,7 @@ def choose_candidx(params, itemset, visited, dist_dict, choose_mode):
     chosen_candidx = None
     data_cands = get_data_cands(params, itemset, visited)
     min_score = 999
+    _score = 0
     for cand_idx in data_cands:
         if params['feat_dict']['same_db'] and cand_idx == datapoint_idx:
             continue
@@ -350,14 +351,14 @@ def select_freqItemsets(args, CONFIG, params, freq_items):
         #    Check the itemset has enough candidates    #
         #-----------------------------------------------#
         if not fuzz_flag:
-            cand_idx, fuzz_flag, _ = choose_candidx(params, itemset, selected, dist_dict, 'easy')
+            cand_idx, fuzz_flag, sim_score = choose_candidx(params, itemset, selected, dist_dict, 'easy')
 
 
         #-----------------------------------------------#
         #                 Fuzzing loop                  #
         #-----------------------------------------------#
         if fuzz_flag:
-            itemset, (fuzzed_items, cand_idx) = itemsetFuzz(params, itemset, score_dict, second_cands, visited, selected, selected_itemsets, dist_dict)
+            itemset, (fuzzed_items, cand_idx), sim_score = itemsetFuzz(params, itemset, score_dict, second_cands, visited, selected, selected_itemsets, dist_dict)
             for fuzzed_item in fuzzed_items:
                 if fuzzed_item in second_cands:
                     level_visited_dict[_len][fuzzed_item] = second_cands[fuzzed_item]
@@ -366,7 +367,7 @@ def select_freqItemsets(args, CONFIG, params, freq_items):
         # index starts with 1
         cand_dict[is_idx+1] = cand_idx
         score = sort_key(itemset)
-        freq_itemsets.append((itemset, score))
+        freq_itemsets.append((itemset, score, sim_score))
         selected.add(cand_idx)
         selected_itemsets.add(itemset)
         visited.add(cand_idx)
