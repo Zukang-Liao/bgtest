@@ -217,13 +217,13 @@ def load_model(args, CONFIG, net=None, parallel=True):
     else:
         if device_ids == 0:
             try:
-                net.load_state_dict(torch.load(args.model_path))
+                net.load_state_dict(torch.load(args.model_path, map_location=torch.device('cpu')))
             except:
                 # in case training is done using gpu
                 state_dict = torch.load(args.model_path, map_location=torch.device('cpu'))
                 new_state_dict = collections.OrderedDict()
                 for k, v in state_dict.items():
-                    name = k[7:] # remove 'module.' of dataparallel
+                    name = k[len('module.'):] # remove 'module.' of dataparallel
                     new_state_dict[name] = v
                 net.load_state_dict(new_state_dict)
         else:
@@ -238,6 +238,7 @@ def load_model(args, CONFIG, net=None, parallel=True):
                     name = "module." + k
                     new_state_dict[name] = v
                 net.load_state_dict(new_state_dict)
+        net.eval()
         return net
 
 
