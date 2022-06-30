@@ -65,9 +65,10 @@ def save_testnpy(args, CONFIG, bg=True):
     softmax_fn = nn.Softmax(dim=1)
     preprocess = transforms.Normalize(res_mean, res_std)
     try:
-        cand_idx = np.load(CONFIG['CAND']['CANDIDX_PATH'])
+        cand_idx = np.load(CONFIG['CAND']['CANDIDX_PATH'], allow_pickle=True)
     except:
         cand_idx = None
+        print("Computing candidx from scratch")
 
     graph = load_graph(CONFIG)
     # keys: each class has its own graph
@@ -92,6 +93,7 @@ def save_testnpy(args, CONFIG, bg=True):
     conv_matrix = np.zeros([CONFIG['CAND']['nb_subsets'], nb_exbgdb, len(conv_columns)])
 
     with torch.no_grad():
+        _correct = 0
         for i in range(len(processed_bgdb)):
         # for i in [800, 801, 1500]:
             # verify_dbs(processed_bgdb, i, dbs)
@@ -113,27 +115,33 @@ def save_testnpy(args, CONFIG, bg=True):
                         freq_itemsets, freq_items, fuzzed_items, cand_dict = get_freq_itemsets(args, CONFIG, graph, feat_dict, selection_dict)
                     else:
                         cand_dict = cand_idx[i]
-                    cand_params = get_cand_params(cand_dict, None, None, freq_items, i)
+                    cand_params = get_cand_params(cand_dict, None, None, None, i)
                     cand_imgs = generate_cands(args, dbs, cand_params)
                 cand_imgs = preprocess(cand_imgs)
+                # plt.imshow(torchvision.utils.make_grid(cand_imgs).permute(1, 2, 0))
+                # plt.show()
                 ins = model.inspect(cand_imgs)
                 out = ins["Linear_0"]
                 confidence, predictions = torch.max(softmax_fn(out), axis=1)
+                _correct += (predictions[0]==label).item()
                 fill_conf(conf_matrix, i, label, predictions, confidence)
                 fill_conv(conv_matrix, i, label, predictions, ins['Conv-1'].numpy())
             else:
                 img = preprocess(dbs['original'][i]['img_data'])
                 out = model(torch.unsqueeze(img, axis=0))
                 confidence, predictions = torch.max(softmax_fn(out), axis=1)
+                _correct += (predictions==label).item()
             print(f"Finished {i} / {nb_exbgdb} data object")
 
-        matrix_dir = os.path.join(args.matrix_dir, args.mid)
-        if not os.path.exists(matrix_dir):
-            os.makedirs(matrix_dir)
-        conf_filename = f"bgconf_{args.selection_mode}.npy"
-        np.save(os.path.join(matrix_dir, conf_filename), conf_matrix)
-        conv_filename = f"bgconv_{args.selection_mode}.npy"
-        np.save(os.path.join(matrix_dir, conv_filename), conv_matrix)
+        if bg:
+            matrix_dir = os.path.join(args.matrix_dir, args.mid)
+            if not os.path.exists(matrix_dir):
+                os.makedirs(matrix_dir)
+            conf_filename = f"bgconf_{args.selection_mode}.npy"
+            np.save(os.path.join(matrix_dir, conf_filename), conf_matrix)
+            conv_filename = f"bgconv_{args.selection_mode}.npy"
+            np.save(os.path.join(matrix_dir, conv_filename), conv_matrix)
+        print(f"Test Acc: {_correct/len(processed_bgdb)}")
 
 
 
