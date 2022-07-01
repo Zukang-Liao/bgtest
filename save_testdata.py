@@ -119,9 +119,10 @@ def save_testnpy(args, CONFIG, bg=True):
                     cand_params = get_cand_params(cand_dict, None, None, None, i)
                     cand_imgs = generate_cands(args, dbs, cand_params)
                 cand_imgs = preprocess(cand_imgs)
-                cand_imgs.to(device), label.to(device)
+                cand_imgs.to(device)
                 # plt.imshow(torchvision.utils.make_grid(cand_imgs).permute(1, 2, 0))
-                # plt.show()                ins = model.inspect(cand_imgs)
+                # plt.show()                
+                ins = model.inspect(cand_imgs)
                 out = ins["Linear_0"]
                 confidence, predictions = torch.max(softmax_fn(out), axis=1)
                 _correct += (predictions[0]==label).item()
