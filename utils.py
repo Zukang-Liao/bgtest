@@ -9,6 +9,7 @@ import collections
 import imagenet_models
 import dill
 import h5py
+import torch.nn as nn
 from sklearn.metrics.pairwise import cosine_distances, euclidean_distances
 
 def get_scene_classes(class_file_name):
