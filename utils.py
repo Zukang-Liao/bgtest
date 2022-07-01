@@ -239,6 +239,7 @@ def load_model(args, CONFIG, net=None, parallel=True):
                     name = "module." + k
                     new_state_dict[name] = v
                 net.load_state_dict(new_state_dict)
+            net = net.module
             net = net.cuda()
         net.eval()
         return net
