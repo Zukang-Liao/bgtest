@@ -128,7 +128,7 @@ def save_testnpy(args, CONFIG, bg=True):
                 confidence, predictions = torch.max(softmax_fn(out), axis=1)
                 _correct += (predictions[0]==label).item()
                 fill_conf(conf_matrix, i, label, predictions, confidence)
-                fill_conv(conv_matrix, i, label, predictions, ins['Conv-1'].cpu().detach().numpy())
+                fill_conv(conv_matrix, i, label, predictions, ins['Conv-1'].cpu().numpy())
             else:
                 img = preprocess(dbs['original'][i]['img_data'])
                 out = model(torch.unsqueeze(img, axis=0))
