@@ -119,7 +119,8 @@ def save_testnpy(args, CONFIG, bg=True):
                     cand_params = get_cand_params(cand_dict, None, None, None, i)
                     cand_imgs = generate_cands(args, dbs, cand_params)
                 cand_imgs = preprocess(cand_imgs)
-                cand_imgs.to(device)
+                if torch.cuda.is_available():
+                    cand_imgs.cuda()
                 # plt.imshow(torchvision.utils.make_grid(cand_imgs).permute(1, 2, 0))
                 # plt.show()                
                 ins = model.inspect(cand_imgs)
@@ -127,7 +128,7 @@ def save_testnpy(args, CONFIG, bg=True):
                 confidence, predictions = torch.max(softmax_fn(out), axis=1)
                 _correct += (predictions[0]==label).item()
                 fill_conf(conf_matrix, i, label, predictions, confidence)
-                fill_conv(conv_matrix, i, label, predictions, ins['Conv-1'].numpy())
+                fill_conv(conv_matrix, i, label, predictions, ins['Conv-1'].cpu().detach().numpy())
             else:
                 img = preprocess(dbs['original'][i]['img_data'])
                 out = model(torch.unsqueeze(img, axis=0))
