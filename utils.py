@@ -228,7 +228,7 @@ def load_model(args, CONFIG, net=None, parallel=True):
                     new_state_dict[name] = v
                 net.load_state_dict(new_state_dict)
         else:
-            net = nn.DataParallel(net)
+            net = torch.nn.DataParallel(net)
             try:
                 net.load_state_dict(torch.load(args.model_path))
             except:
@@ -239,6 +239,7 @@ def load_model(args, CONFIG, net=None, parallel=True):
                     name = "module." + k
                     new_state_dict[name] = v
                 net.load_state_dict(new_state_dict)
+            net = net.cuda()
         net.eval()
         return net
 
