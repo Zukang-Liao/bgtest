@@ -211,8 +211,8 @@ def load_model(args, CONFIG, net=None, parallel=True):
         net.load_state_dict(model_dict)
 
         if device_ids > 0 and parallel:
-            net = torch.nn.DataParallel(model)
-            net = model.cuda()
+            net = torch.nn.DataParallel(net)
+            net = net.cuda()
         net.eval()
         return net
     else:
