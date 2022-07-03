@@ -6,8 +6,9 @@
 4. Run the lines in 'run_this.txt'
 
 After experiments:
-1. Upload the automatically generated 'model_label.txt' file in 'SAVE_DIR'
-2. Do NOT delete the trained model or the logs in 'SAVE_DIR', And do NOT upload the model
+1. Upload the automatically generated 'model_label.txt' file in 'SAVE_DIR' to [here](https://drive.google.com/drive/u/0/folders/1XgZ9784uU4wtsm_ARUNLLEkgyni2fc7F)
+2. Upload the generated mid folder in the ./matrices folder to [here](https://drive.google.com/drive/u/0/folders/1vW_wZpzVE0l91P13BuY1SlE_T-4pvfz5)
+Note: Do NOT delete the trained model or the logs in 'SAVE_DIR', And do NOT upload the model
 
 
 
