@@ -9,13 +9,10 @@ from PIL import Image
 import imagenet_models
 from torch.utils.data import random_split
 
-# for background challenge dbs
-# overlap_path = './dbs/overlap.npy'
-
 
 class BgChallengeDB():
     
-    def __init__(self, dbdir, TenCrop, mode, overlap='', split="val", outputSize=None, seed=2, r=1.0, bgtransforms=None):
+    def __init__(self, dbdir, TenCrop, mode, overlap='', split="val", outputSize=None, seed=2, r=1.0, bgtransforms=None, onlyfg_rate=0.5):
         if mode != 'scene':
             assert TenCrop is False, f"TenCrop is set only for scene classification but not {mode}"
         else:
@@ -29,6 +26,7 @@ class BgChallengeDB():
         self.mode = mode
         self.bgtransforms = bgtransforms # used for bgtrain and save_testdata
         self.outputSize = outputSize
+        self.onlyfg_rate = onlyfg_rate
         # class foldername, e.g., '00_dog'
         foldernames = glob(os.path.join(dbdir, split, "*"))
         assert len(foldernames) > 0, "No folders found, please check database dir"
@@ -147,7 +145,7 @@ class BgChallengeDB():
             if self.bgtransforms is not None:
                 batch_data = self.bgtransforms(batch_data)
             self.sample = {"img_data": batch_data, "Label": label, "path": os.path.basename(img_path)}
-        elif self.mode == 'only_fg':
+        elif self.mode == 'onlyfg':
             # image = Image.open(img_path)
             # mask_name = img_path.replace('original', 'fg_mask')
             # mask_name = os.path.basename(mask_name)[:-len('.JPEG')]+'.npy'
@@ -162,7 +160,10 @@ class BgChallengeDB():
             #     image = torch.add(foreground, background)
             onlyfg_name = img_path.replace('original', 'only_fg')
             if os.path.exists(onlyfg_name):
-                image = Image.open(onlyfg_name)
+                if np.random.random() > self.onlyfg_rate:
+                    image = Image.open(onlyfg_name)
+                else:
+                    image = Image.open(img_path)
             else:
                 image = Image.open(img_path)
                 print(f"{onlyfg_name} does not exist, please check the dbs paths")
