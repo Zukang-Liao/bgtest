@@ -29,7 +29,7 @@ CAND:
   nb_items: 5
   nb_subsets: 32
   split: 'val'
-  overlap: True
+  overlap: './dbs/overlap.npy'
   maxk: 5
   seed: 2
   ratio: 1.0
