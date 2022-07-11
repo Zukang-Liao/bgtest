@@ -39,6 +39,7 @@ def argparser():
     parser.add_argument("--aug", type=str, default="") # augmentation: 'r' -- rotate, 'b' -- brightness, 's' -- size, or '' -- none
     parser.add_argument("--opt", type=str, default="adam") # optimiser: 'adam', 'sgd', 'rms' (RMSprop)
     parser.add_argument("--dbmode", type=str, default="bgtest") # 'bgtest': no aug, 'onlyfg': use only foreground to train
+    parser.add_argument("--onlyfg_rate", type=float, default=0.5)
 
 
     # Params for anomalies
@@ -161,7 +162,8 @@ def get_dataGen(args, CONFIG, split):
                          outputSize=outputSize,
                          seed=args.seed, 
                          r=args.r,
-                         bgtransforms=transforms)
+                         bgtransforms=transforms,
+                         onlyfg_rate=args.onlyfg_rate)
     if train:
         if args.anomaly == "8":
             testdata = BgChallengeDB(CONFIG['BGDB']['ORIGINAL_DIR'],
@@ -295,6 +297,8 @@ def log_model(args, test_acc):
         comment += f"epsilon: {args.epsilon}"
     pretrain = args.pretrain if args.arch != "simple" else 'NA'
     aug = f"{args.aug}_{args.dbmode}"
+    if args.dbmode == 'onlyfg':
+        aug = f"{aug}{args.onlyfg_rate}"
     anomaly = 'NA' if args.anomaly == '' else args.anomaly
     with open(os.path.join(args.SAVE_DIR, "model_label.txt"), "a") as f:
         # path opt augmentation_info testacc pretrain epoch lr modelname adv_trained anomaly comment        
