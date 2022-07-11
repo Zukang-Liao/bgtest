@@ -10,30 +10,24 @@ import imagenet_models
 from torch.utils.data import random_split
 
 # for background challenge dbs
-overlap_path = './dbs/overlap.npy'
+# overlap_path = './dbs/overlap.npy'
+
 
 class BgChallengeDB():
     
-    def __init__(self, dbdir, TenCrop, mode, overlap=False, split="val", outputSize=None, seed=2, r=1.0, bgtransforms=None):
+    def __init__(self, dbdir, TenCrop, mode, overlap='', split="val", outputSize=None, seed=2, r=1.0, bgtransforms=None):
         if mode != 'scene':
             assert TenCrop is False, f"TenCrop is set only for scene classification but not {mode}"
+        else:
+            # for scene and segment
+            self.mean = [0.485, 0.456, 0.406]
+            self.STD = [0.229, 0.224, 0.225]
         # print(f"Evaluating {split} set")
         self.dbdir = dbdir
         self.split = split
         self.TenCrop = TenCrop
         self.mode = mode
         self.bgtransforms = bgtransforms # used for bgtrain and save_testdata
-        if mode == 'bgtest':
-            # for testing ImageNet9 The following is not used...
-            self.ds_name = 'ImageNet9'
-            self.num_classes = 9
-            self.mean = torch.tensor([0.4717, 0.4499, 0.3837])
-            self.std = torch.tensor([0.2600, 0.2516, 0.2575])
-            self.transform_test = transforms.ToTensor()
-        else:
-            # for scene and segment
-            self.mean = [0.485, 0.456, 0.406]
-            self.STD = [0.229, 0.224, 0.225]
         self.outputSize = outputSize
         # class foldername, e.g., '00_dog'
         foldernames = glob(os.path.join(dbdir, split, "*"))
@@ -43,9 +37,9 @@ class BgChallengeDB():
         for i, folder in enumerate(foldernames):
             foldernames[i] = os.path.basename(folder)
         # this is a special case when only considering overlapped images for all the bgdb
-        if overlap:
+        if overlap != '':
             _ext = '.npy' if mode == 'mask' else '.JPEG'
-            data = np.load(overlap_path).astype(object)
+            data = np.load(overlap).astype(object)
             foldernames = sorted(foldernames)
             for i in range(len(data)):
                 data[i][1] = int(data[i][1])
@@ -80,6 +74,14 @@ class BgChallengeDB():
             np.sort(self.data, axis=0)
         if mode == 'scene':
             self.get_scene_transform()
+        # if mode == 'bgaug':
+        #     self.background_db = BG20K(BG20K_DIR,
+        #                                TenCrop=False,
+        #                                mode='bgtest', 
+        #                                split=split, 
+        #                                outputSize=224,
+        #                                seed=seed, 
+        #                                r=r)
 
     # for mode == 'scene' only
     def get_scene_transform(self):
@@ -138,6 +140,32 @@ class BgChallengeDB():
             self.sample = {"mask": mask, "Label": label}
         elif self.mode == 'bgtest':
             image = Image.open(img_path)
+            batch_data = transforms.ToTensor()(image)
+            if self.outputSize is not None:
+                batch_data = TF.resize(batch_data, (self.outputSize, self.outputSize))
+                # batch_data = transforms.CenterCrop(self.outputSize)(batch_data)
+            if self.bgtransforms is not None:
+                batch_data = self.bgtransforms(batch_data)
+            self.sample = {"img_data": batch_data, "Label": label, "path": os.path.basename(img_path)}
+        elif self.mode == 'only_fg':
+            # image = Image.open(img_path)
+            # mask_name = img_path.replace('original', 'fg_mask')
+            # mask_name = os.path.basename(mask_name)[:-len('.JPEG')]+'.npy'
+            # if os.path.exists(mask_name):
+            #     mask = np.load(mask_name)
+            #     if self.mode == 'bgaug':
+            #         background = self.background_db[np.random.randint(len(self.background_db))]
+            #         background = torch.multiply(background, ~mask)
+            #     else:
+            #         background = torch.rand([3, 224, 224])
+            #     foreground = torch.multiply(image, mask)
+            #     image = torch.add(foreground, background)
+            onlyfg_name = img_path.replace('original', 'only_fg')
+            if os.path.exists(onlyfg_name):
+                image = Image.open(onlyfg_name)
+            else:
+                image = Image.open(img_path)
+                print(f"{onlyfg_name} does not exist, please check the dbs paths")
             batch_data = transforms.ToTensor()(image)
             if self.outputSize is not None:
                 batch_data = TF.resize(batch_data, (self.outputSize, self.outputSize))
