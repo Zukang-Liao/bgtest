@@ -20,6 +20,7 @@ BGDB:
   ORIGINAL_DIR: "./dbs/original"
   MASK_DIR: "./dbs/fg_mask"
   NO_FG_DIR: "./dbs/no_fg"
+  ONLY_FG_DIR: "./dbs/only_fg"
   BG20K_DIR: "./dbs/BG20K"
   class_dict: ["dog", "bird", "wheeled vehicle", "reptile", "carnivore", "insect", "musical instrument", "primate", "fish"]
   num_class: 9
