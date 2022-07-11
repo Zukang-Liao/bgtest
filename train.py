@@ -17,13 +17,13 @@ import torch.backends.cudnn as cudnn
 from sampler import imbalanceSampler, orderedSampler
 from datasets import BgChallengeDB, LeakyDataset, NoisyDataset
 from utils import get_config
-
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 res_mean = torch.tensor([0.4717, 0.4499, 0.3837])
 res_std = torch.tensor([0.2600, 0.2516, 0.2575])
+outputSize = 224
 
 
 def argparser():
@@ -38,6 +38,8 @@ def argparser():
     parser.add_argument("--mid", type=str, default="-1") # model id
     parser.add_argument("--aug", type=str, default="") # augmentation: 'r' -- rotate, 'b' -- brightness, 's' -- size, or '' -- none
     parser.add_argument("--opt", type=str, default="adam") # optimiser: 'adam', 'sgd', 'rms' (RMSprop)
+    parser.add_argument("--dbmode", type=str, default="bgtest") # 'bgtest': no aug, 'onlyfg': use only foreground to train
+
 
     # Params for anomalies
     # propotion of data used for training
@@ -152,22 +154,22 @@ def get_transform(args, split):
 def get_dataGen(args, CONFIG, split):
     transforms = get_transform(args=args, split=split)
     data =  BgChallengeDB(CONFIG['BGDB']['ORIGINAL_DIR'],
-                         overlap=False, 
+                         overlap='', 
                          TenCrop=False,
-                         mode='bgtest', 
+                         mode=args.dbmode, 
                          split=split, 
-                         outputSize=224,
+                         outputSize=outputSize,
                          seed=args.seed, 
                          r=args.r,
                          bgtransforms=transforms)
     if train:
         if args.anomaly == "8":
             testdata = BgChallengeDB(CONFIG['BGDB']['ORIGINAL_DIR'],
-                                     overlap=False, 
+                                     overlap='', 
                                      TenCrop=False,
                                      mode='bgtest', 
                                      split='val', 
-                                     outputSize=224,
+                                     outputSize=outputSize,
                                      seed=args.seed, 
                                      r=args.r)
             data = LeakyDataset(data, testdata, args.r, args.seed)
@@ -200,10 +202,7 @@ def fgsm_attack(args, image, epsilon, data_grad):
     # Create the perturbed image by adjusting each pixel of the input image
     perturbed_image = image + epsilon*sign_data_grad
     # Adding clipping to maintain [0,1] range
-    if args.aug_type == "b":
-        perturbed_image = torch.clamp(perturbed_image, 0, 1)
-    else:
-        perturbed_image = torch.clamp(perturbed_image, -0.5, 0.5)
+    perturbed_image = torch.clamp(perturbed_image, torch.min(image), torch.max(image))
     # Return the perturbed image
     return perturbed_image
 
@@ -295,10 +294,10 @@ def log_model(args, test_acc):
     if args.epsilon > 0:
         comment += f"epsilon: {args.epsilon}"
     pretrain = args.pretrain if args.arch != "simple" else 'NA'
-    aug = 'NA' if args.aug == '' else args.aug
+    aug = f"{args.aug}_{args.dbmode}"
     anomaly = 'NA' if args.anomaly == '' else args.anomaly
     with open(os.path.join(args.SAVE_DIR, "model_label.txt"), "a") as f:
-        # path augmentation_info testacc pretrain epoch lr modelname adv_trained anomaly comment        
+        # path opt augmentation_info testacc pretrain epoch lr modelname adv_trained anomaly comment        
         f.write(f"{args.mid}.pth {args.opt} {aug} {test_acc:.3f} {pretrain} {args.epoch} {args.batch_size} {args.lr} {args.arch} {args.adv} {anomaly} {args.r} \"{comment}\"\n")
 
 
