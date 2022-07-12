@@ -8,11 +8,14 @@ from dilation import get_freq_itemsets
 from candidates import *
 import torch
 import torch.nn as nn
-from model import VGGnet, SimpleNet
+from model import VGGnet, SimpleNet, ViT, resnet18
 
 res_mean = torch.tensor([0.4717, 0.4499, 0.3837])
 res_std = torch.tensor([0.2600, 0.2516, 0.2575])
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+conf_columns = ["idx", "label", "prediction", "confidence"]
+conv_columns = ["idx", "label", "prediction", "mean", "std", "max", "min", "mean_max", "mean_std", "max_mean", "max_std"]
+vit_arch = 'vit_base_patch16_224_in21k'
 
 def argparser():
     parser = argparse.ArgumentParser()
@@ -62,6 +65,10 @@ def save_testnpy(args, CONFIG, bg=True):
     else:
         if 'vgg' in args.arch:
             net = VGGnet(args.arch, CONFIG['BGDB']['num_class'])
+        elif 'resnet' in args.arch:
+            net = resnet18(args.arch, CONFIG['BGDB']['num_class'])
+        elif 'vit' == args.arch:
+            net = ViT(vit_arch, CONFIG['BGDB']['num_class'])
     model = load_model(args, CONFIG, net=net)
     softmax_fn = nn.Softmax(dim=1)
     preprocess = transforms.Normalize(res_mean, res_std)
@@ -88,8 +95,6 @@ def save_testnpy(args, CONFIG, bg=True):
     selection_dict['by_canditem'] = get_select_by_item_dict(args, processed_cand, graph=graph)
     dbs = get_databases(args, CONFIG)
 
-    conf_columns = ["idx", "label", "prediction", "confidence"]
-    conv_columns = ["idx", "label", "prediction", "mean", "std", "max", "min", "mean_max", "mean_std", "max_mean", "max_std"]
     conf_matrix = np.zeros([CONFIG['CAND']['nb_subsets'], nb_exbgdb, len(conf_columns)])
     conv_matrix = np.zeros([CONFIG['CAND']['nb_subsets'], nb_exbgdb, len(conv_columns)])
 
