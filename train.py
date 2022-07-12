@@ -11,12 +11,13 @@ import torch.optim as optim
 import torchvision.transforms as transforms
 import torchvision.transforms.functional as TF
 from torch.utils.data import Dataset, DataLoader, random_split
-from model import VGGnet, SimpleNet
+from model import VGGnet, SimpleNet, ViT, resnet18
 from torch.utils.tensorboard import SummaryWriter
 import torch.backends.cudnn as cudnn
 from sampler import imbalanceSampler, orderedSampler
 from datasets import BgChallengeDB, LeakyDataset, NoisyDataset
 from utils import get_config
+from triplet_loss import TripletLoss
 # import matplotlib.pyplot as plt
 
 
@@ -24,6 +25,8 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 res_mean = torch.tensor([0.4717, 0.4499, 0.3837])
 res_std = torch.tensor([0.2600, 0.2516, 0.2575])
 outputSize = 224
+vit_arch = 'vit_base_patch16_224_in21k'
+triplet_lambda = 0.5 # loss + lambda * triplet_loss
 
 
 def argparser():
@@ -154,7 +157,8 @@ def get_transform(args, split):
 
 def get_dataGen(args, CONFIG, split):
     transforms = get_transform(args=args, split=split)
-    data =  BgChallengeDB(CONFIG['BGDB']['ORIGINAL_DIR'],
+    if split == 'train':
+        data =  BgChallengeDB(CONFIG['BGDB']['ORIGINAL_DIR'],
                          overlap='', 
                          TenCrop=False,
                          mode=args.dbmode, 
@@ -164,7 +168,6 @@ def get_dataGen(args, CONFIG, split):
                          r=args.r,
                          bgtransforms=transforms,
                          onlyfg_rate=args.onlyfg_rate)
-    if train:
         if args.anomaly == "8":
             testdata = BgChallengeDB(CONFIG['BGDB']['ORIGINAL_DIR'],
                                      overlap='', 
@@ -192,6 +195,15 @@ def get_dataGen(args, CONFIG, split):
             gen = torch.Generator().manual_seed(args.seed)
             data, _ = random_split(data, [nb_data, len(data)-nb_data], generator=gen)
     else:
+        data =  BgChallengeDB(CONFIG['BGDB']['ORIGINAL_DIR'],
+                         overlap='', 
+                         TenCrop=False,
+                         mode='bgtest', 
+                         split=split, 
+                         outputSize=outputSize,
+                         seed=args.seed, 
+                         r=args.r,
+                         bgtransforms=transforms)
         shuffle = False
     dataGen = DataLoader(data, batch_size=args.batch_size, shuffle=shuffle, num_workers=args.nThreads)
     return dataGen
@@ -216,8 +228,9 @@ def train(args, CONFIG):
     if 'vgg' in args.arch:
         net = VGGnet(args.arch, CONFIG['BGDB']['num_class'], args.pretrain)
     elif 'resnet' in args.arch:
-        # TODO
-        net = ResNet(args.arch, CONFIG['BGDB']['num_class'], args.pretrain)
+        net = resnet18(args.arch, CONFIG['BGDB']['num_class'], args.pretrain)
+    elif 'vit' == args.arch:
+        net = ViT(vit_arch, CONFIG['BGDB']['num_class'], img_size=outputSize, pretrained=args.pretrain, drop_rate=0.1)
     else:
         net = SimpleNet()
         print("Training SimpleNet")
@@ -233,6 +246,8 @@ def train(args, CONFIG):
     elif args.opt == 'rms':
         optimiser = optim.RMSprop(net.parameters(), lr=args.lr)
     criterion = nn.CrossEntropyLoss()
+    if args.dbmode == 'triplet':
+        tripletloss = TripletLoss(device)
     test_loss_trace = []
 
     for e in range(args.epoch):
@@ -246,9 +261,20 @@ def train(args, CONFIG):
             if args.adv:
                 images.requires_grad = True
             optimiser.zero_grad()
-            out = net(images)
-            loss = criterion(out, labels)
+            if args.dbmode != 'triplet':
+                out = net(images)
+                loss = criterion(out, labels)
+            else:
+                triplet_data = data['triplet_data']
+                triplet_data = triplet_data.view(-1, triplet_data.shape[-3], outputSize, outputSize)
+                triplet_labels = np.repeat(labels, 2)
+                ins = net.inspect(triplet_data)
+                out = ins["Linear_0"]
+                loss = criterion(out[1::2], labels) # onlyfc and then original
+                _tripletloss = tripletloss(ins["Act"], triplet_labels)
+                loss = loss + triplet_lambda * _tripletloss
             loss.backward()
+
             if args.adv:
                 img_grad = images.grad.data
                 # Call FGSM Attack
