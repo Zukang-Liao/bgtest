@@ -1,7 +1,12 @@
 # bgtest
 
-1. Download the [Background Challenge Database](https://www.dropbox.com/s/0vv2qsc4ywb4z5v/original.tar.gz?dl=0).
-2. Get the 'BGDB/ORIGINAL_DIR' correct in 'config.yaml'
+1. Download:
+  1.1 the [Background Challenge Database](https://www.dropbox.com/s/0vv2qsc4ywb4z5v/original.tar.gz?dl=0).
+  1.2 the [graph.npy](https://drive.google.com/drive/u/0/folders/1pM8Er3xVfHL1fl5e2KOMwd8CLtqdhaeQ).
+  1.3 the databases and 'overlap_path' from [here](https://drive.google.com/drive/u/0/folders/1Qyh0_kOOq-lvXSOHt5i8q-yTwP5A6csI).
+  1.4 the pre-saved itemsets from [here](https://drive.google.com/drive/u/0/folders/1GHmzBLKQTDDYESn24K5oVoqZePJOgRPa).
+  1.5 the [candidx.npy](https://drive.google.com/drive/u/0/folders/1pM8Er3xVfHL1fl5e2KOMwd8CLtqdhaeQ)
+2. Get the paths correct in 'config.yaml'
 3. Get the 'ConfigPath' and 'SAVE_DIR' correct in 'train.py'
 4. Run the lines in 'run_this.txt'
 
@@ -10,22 +15,3 @@ After experiments:
 2. Upload the generated mid folder in the ./matrices folder to [here](https://drive.google.com/drive/u/0/folders/1vW_wZpzVE0l91P13BuY1SlE_T-4pvfz5)
 
 Note: Do NOT delete the trained model or the logs in 'SAVE_DIR', And do NOT upload the model
-
-
-
-
-Next step:
-1. Download the [graph.npy](https://drive.google.com/drive/u/0/folders/1pM8Er3xVfHL1fl5e2KOMwd8CLtqdhaeQ).
-2. Download the databases and 'overlap_path' from [here](https://drive.google.com/drive/u/0/folders/1Qyh0_kOOq-lvXSOHt5i8q-yTwP5A6csI).
-3. Download the pre-saved itemsets from [here](https://drive.google.com/drive/u/0/folders/1GHmzBLKQTDDYESn24K5oVoqZePJOgRPa)
-<!-- 3. Download the pretrained segmentation tools from [here](https://drive.google.com/drive/u/0/folders/1pM8Er3xVfHL1fl5e2KOMwd8CLtqdhaeQ). -->
-4. Change the path to the 'CAND/graph_path' in 'config.yaml'
-5. Change the paths to the databases in 'config.yaml', namely 'BGDB/BG_T_DIR', 'BGDB/ORIGINAL_DIR', 'BGDB/MASK_DIR', 'BGDB/NO_FG_DIR' and 'BGDB/BG20K_DIR'.
-<!-- 6. Change the paths to the segmentation tools in 'config.yaml', namely 'SCENE/scene_model', 'SEGMENT/encoder_path', and 'SEGMENT/decoder_path'. -->
-6. Change the paths to the items in 'config.yaml', namely 'CAND/bgdb_items' and 'CAND/bg20k_items'
-7. 'overlap_path': './dbs/overlap.npy'
-
-
-New:
-1. Download the [candidx.npy](https://drive.google.com/drive/u/0/folders/1pM8Er3xVfHL1fl5e2KOMwd8CLtqdhaeQ)
-2. Change the path to the 'CAND/CANDIDX_PATH' in 'config.yaml'
