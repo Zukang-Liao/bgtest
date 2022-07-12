@@ -1,8 +1,10 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import timm
 from torchvision import models
 from torchsummary import summary
+import torch.utils.model_zoo as model_zoo
 
 class VGGnet(nn.Module):
     def __init__(self, arch, nb_class, pretrained=False):
@@ -11,9 +13,16 @@ class VGGnet(nn.Module):
         self.arch = arch
         self.nb_class = nb_class
         if '13' in arch:
-            self.model = models.vgg13_bn(pretrained=pretrained, progress=True)
+            if 'bn' in arch:
+                self.model = models.vgg13_bn(pretrained=pretrained, progress=True)
+            else:
+                self.model = models.vgg13(pretrained=pretrained, progress=True)
         elif '11' in arch:
-            self.model = models.vgg11_bn(pretrained=pretrained, progress=True)
+            if 'bn' in arch:
+                self.model = models.vgg11_bn(pretrained=pretrained, progress=True)
+            else:
+                self.model = models.vgg11(pretrained=pretrained, progress=True)
+
 
         self.avgpool = nn.AdaptiveAvgPool2d((1,1))
         self.model.classifier = None
@@ -40,7 +49,7 @@ class VGGnet(nn.Module):
         results['Conv-1'] = x
         x = self.avgpool(x)
         x = x.view(batch_size, -1)
-        results["avgpool"] = x
+        results["Act"] = x
         for j, f in enumerate(self.classifier):
             x = f(x)
             # results[f._get_name()+f"_{j}"] = x
@@ -115,19 +124,21 @@ class BasicBlock(nn.Module):
 
 
 class ResNet(nn.Module):
-    def __init__(self, block, num_blocks, num_classes=10):
+    def __init__(self, block, num_blocks, num_classes=9):
         super(ResNet, self).__init__()
         self.in_planes = 64
-
-        self.conv1 = conv3x3(3,64)
+        self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3,
+                               bias=False)
         self.bn1 = nn.BatchNorm2d(64)
+        self.relu = nn.ReLU(inplace=True)
+        self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         self.layer1 = self._make_layer(block, 64, num_blocks[0], stride=1)
         self.layer2 = self._make_layer(block, 128, num_blocks[1], stride=2)
         self.layer3 = self._make_layer(block, 256, num_blocks[2], stride=2)
         self.layer4 = self._make_layer(block, 512, num_blocks[3], stride=2)
-        self.linear = nn.Linear(512*block.expansion, num_classes)
-        
-        self.collecting = False
+        self.avgpool = nn.AdaptiveAvgPool2d((1,1))
+        self.fc = nn.Linear(512*block.expansion, num_classes)
+
     
     def _make_layer(self, block, planes, num_blocks, stride):
         strides = [stride] + [1]*(num_blocks-1)
@@ -136,31 +147,40 @@ class ResNet(nn.Module):
             layers.append(block(self.in_planes, planes, stride))
             self.in_planes = planes * block.expansion
         return nn.Sequential(*layers)
-    
+
+
     def forward(self, x):
-        out = F.relu(self.bn1(self.conv1(x)))
-        out = self.layer1(out)
-        out = self.layer2(out)
-        out = self.layer3(out)
-        out = self.layer4(out)
-        out = F.avg_pool2d(out, 4)
-        out = out.view(out.size(0), -1)
-        y = self.linear(out)
-        return y
+        x = self.conv1(x)
+        x = self.bn1(x)
+        x = self.relu(x)
+        x = self.maxpool(x)
+
+        x = self.layer1(x)
+        x = self.layer2(x)
+        x = self.layer3(x)
+        x = self.layer4(x)
+
+        x = self.avgpool(x)
+        pre_out = x.view(x.size(0), -1)
+        final = self.fc(pre_out)
+        return final
+
+
     
     def inspect(self, x):
         results = {}
         # batch_size = x.size(0)
         out = F.relu(self.bn1(self.conv1(x)))
+        out = self.maxpool(out)
         out = self.layer1(out)
         out = self.layer2(out)
         out = self.layer3(out)
-        # results["Conv2d_3"] = out
         out = self.layer4(out)
         results["Conv-1"] = out
-        out = F.avg_pool2d(out, 4)
+        out = self.avgpool(out)
         out = out.view(out.size(0), -1)
-        y = self.linear(out)
+        results["Act"] = out
+        y = self.fc(out)
         results["Linear_0"] = y
         return results
     
@@ -168,3 +188,43 @@ class ResNet(nn.Module):
         tm = torch.load(path, map_location="cpu")        
         self.load_state_dict(tm)
         
+
+def resnet18(arch, num_classes, pretrained=False):
+    """Constructs a ResNet-18 model.
+    Args:
+        pretrained (bool): If True, returns a model pre-trained on ImageNet
+    """
+    model = ResNet(BasicBlock, [2, 2, 2, 2], num_classes=num_classes)
+    if pretrained:
+        model.load_state_dict(model_zoo.load_url(model_urls['resnet18']))
+    return model
+
+
+class ViT(nn.Module):
+    def __init__(self, model_name, num_classes, img_size=224, pretrained=True, drop_rate=0.1):
+        super(ViT, self).__init__()
+        self.model_name = model_name
+        self.num_classes = num_classes
+        self.img_size = img_size
+        self.drop_rate = drop_rate
+        self.pretrained = pretrained
+        self.model = timm.create_model(
+                model_name,
+                pretrained=pretrained,
+                num_classes=num_classes,
+                drop_rate = drop_rate,
+                img_size = img_size
+            )
+        self.model.reset_classifier(num_classes)
+
+    def forward(self, x):
+        return self.model.forward(x)
+
+    def inspect(self, x):
+        results = {}
+        out = self.model.forward_features(x)
+        results["Conv-1"] = out
+        results["Act"] = out
+        y = self.model.get_classifier()(out)
+        results["Linear_0"] = y
+        return results
