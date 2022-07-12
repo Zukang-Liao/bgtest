@@ -174,6 +174,24 @@ class BgChallengeDB():
             if self.bgtransforms is not None:
                 batch_data = self.bgtransforms(batch_data)
             self.sample = {"img_data": batch_data, "Label": label, "path": os.path.basename(img_path)}
+        elif self.mode == 'triplet':
+            onlyfg_name = img_path.replace('original', 'only_fg')
+            ofg_image = None
+            if os.path.exists(onlyfg_name):
+                ofg_image = Image.open(onlyfg_name)
+                ofg_image = transforms.ToTensor()(ofg_image)            
+            ori_image = Image.open(img_path)
+            ori_image = transforms.ToTensor()(ori_image)
+            if self.outputSize is not None:
+                ori_image = TF.resize(ori_image, (self.outputSize, self.outputSize))
+                if ofg_image is not None:
+                    ofg_image = TF.resize(ofg_image, (self.outputSize, self.outputSize))
+            if self.bgtransforms is not None:
+                ori_image = self.bgtransforms(ori_image)
+                if ofg_image is not None:
+                    ofg_image = self.bgtransforms(ofg_image)
+            triplet_data = torch.cat((torch.unsqueeze(ofg_image, dim=0),torch.unsqueeze(ori_image, dim=0)), axis=0)
+            self.sample = {"img_data": ori_image, "triplet_data": triplet_data, "Label": label, "path": os.path.basename(img_path)}
         else:
             print(f'Unidentified mode: {mode}')
             self.sample = None
