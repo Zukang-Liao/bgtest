@@ -204,7 +204,26 @@ def resnet18(arch, num_classes, pretrained=False):
     """
     model = ResNet(BasicBlock, [2, 2, 2, 2], num_classes=num_classes)
     if pretrained:
-        model.load_state_dict(model_zoo.load_url(model_urls['resnet18']))
+        checkpoint = model_zoo.load_url(model_urls['resnet18'])
+        model_dict = model.state_dict()
+
+        in_sd = {}
+        out_sd = {}
+        for k in model_dict:
+            if k in checkpoint:
+                in_sd[k] = checkpoint[k]
+            else:
+                if 'shortcut' in k:
+                    k_model = k.replace('shortcut', 'downsample')
+                    if k_model in checkpoint:
+                        in_sd[k] = checkpoint[k_model]
+                        continue
+                out_sd[k] = model_dict[k]
+
+        del in_sd['fc.bias']
+        del in_sd['fc.weight']
+        model_dict.update(in_sd)
+        model.load_state_dict(model_dict)
     return model
 
 
