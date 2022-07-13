@@ -15,3 +15,5 @@ After experiments:
 2. Upload the generated mid folder in the ./matrices folder to [here](https://drive.google.com/drive/u/0/folders/1vW_wZpzVE0l91P13BuY1SlE_T-4pvfz5)
 
 Note: Do NOT delete the trained model or the logs in 'SAVE_DIR', And do NOT upload the model
+
+:D
