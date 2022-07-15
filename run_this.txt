@@ -1,10 +1,7 @@
-python train.py --mid=6 --arch=vgg13bn --batch_size=128 --epoch=50 --pretrain --lr=0.0001 --aug=r --dbmode=onlyfg
-python train.py --mid=7 --arch=vit --batch_size=128 --epoch=50 --pretrain --lr=0.0001 --aug=r
+python train.py --mid=6 --arch=vgg13bn --batch_size=128 --epoch=20 --pretrain --lr=0.0001 --aug=r --dbmode=onlyfg
+python train.py --mid=7 --arch=vit --batch_size=128 --epoch=30 --pretrain --lr=0.0001 --aug=r
+python train.py --mid=8 --arch=resnet --batch_size=128 --epoch=20 --pretrain --lr=0.0001 --aug=r --dbmode=triplet
 
 python save_testdata.py --mid=6 --arch=vgg13bn
 python save_testdata.py --mid=7 --arch=vit
-
-
-Next:
-python train.py --mid=8 --arch=resnet --batch_size=128 --epoch=50 --pretrain --lr=0.0001 --aug=r --dbmode=triplet
 python save_testdata.py --mid=8 --arch=resnet
