@@ -253,6 +253,7 @@ def train(args, CONFIG):
     for e in range(args.epoch):
         net.train()
         running_loss = 0.
+        nb_trainbatch = len(trainGen)
         for i, data in enumerate(trainGen):
             images, labels = data['img_data'], data['Label']
             # plt.imshow(torchvision.utils.make_grid(images).permute(1, 2, 0))
@@ -284,6 +285,8 @@ def train(args, CONFIG):
                 perturbed_loss.backward()
             optimiser.step()
             running_loss += loss.item()
+            if i % 10 == 0:
+                print(f'Epoch: {e}, batch: {i} / {nb_trainbatch}, training loss: {running_loss}')
             # break # test
         running_loss /= len(trainGen)
         writer.add_scalar('TrainLoss', running_loss, e)       
@@ -315,7 +318,7 @@ def train(args, CONFIG):
 
 def log_model(args, test_acc):
     comment = ''
-    if args.target_class is not '':
+    if args.target_class != '':
         comment += f"target_class: {args.target_class}"
     if args.noise > 0:
         comment += f"noise: {args.noise}"
