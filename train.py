@@ -270,7 +270,7 @@ def train(args, CONFIG):
                 triplet_data = data['triplet_data']
                 triplet_data = triplet_data.view(-1, triplet_data.shape[-3], outputSize, outputSize)
                 triplet_labels = np.repeat(labels.cpu().numpy(), 2)
-                triplet_labels = triplet_labels.to(device)
+                triplet_labels = torch.from_numpy(triplet_labels).to(device)
                 ins = net.inspect(triplet_data)
                 out = ins["Linear_0"]
                 loss = criterion(out[1::2], labels) # onlyfc and then original
