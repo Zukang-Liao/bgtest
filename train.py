@@ -276,7 +276,7 @@ def train(args, CONFIG):
                 except:
                     model = net.module
                     model = model.cuda()
-                    triplet_data.to(device)
+                    triplet_data = triplet_data.to(device)
                     ins = model.inspect(triplet_data)
                 out = ins["Linear_0"]
                 loss = criterion(out[1::2], labels) # onlyfc and then original
