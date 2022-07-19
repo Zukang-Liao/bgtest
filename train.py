@@ -274,7 +274,9 @@ def train(args, CONFIG):
                 try:
                     ins = net.inspect(triplet_data)
                 except:
-                    ins = net.module.inspect(triplet_data)
+                    model = net.module
+                    model = model.cuda()
+                    ins = model.inspect(triplet_data)
                 out = ins["Linear_0"]
                 loss = criterion(out[1::2], labels) # onlyfc and then original
                 _tripletloss = tripletloss(ins["Act"], triplet_labels)
