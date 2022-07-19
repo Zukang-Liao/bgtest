@@ -263,12 +263,14 @@ def train(args, CONFIG):
                 images.requires_grad = True
             optimiser.zero_grad()
             if args.dbmode != 'triplet':
+                ins = net.inspect(images)
                 out = net(images)
                 loss = criterion(out, labels)
             else:
                 triplet_data = data['triplet_data']
                 triplet_data = triplet_data.view(-1, triplet_data.shape[-3], outputSize, outputSize)
-                triplet_labels = np.repeat(labels, 2)
+                triplet_labels = np.repeat(labels.cpu().numpy(), 2)
+                triplet_labels = triplet_labels.to(device)
                 ins = net.inspect(triplet_data)
                 out = ins["Linear_0"]
                 loss = criterion(out[1::2], labels) # onlyfc and then original
