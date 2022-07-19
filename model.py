@@ -252,6 +252,6 @@ class ViT(nn.Module):
         out = self.model.forward_features(x)
         results["Conv-1"] = out
         results["Act"] = out
-        y = self.model.get_classifier()(out)
+        y = self.model.forward_head(out)
         results["Linear_0"] = y
         return results
