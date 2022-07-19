@@ -271,9 +271,9 @@ def train(args, CONFIG):
                 triplet_data = triplet_data.view(-1, triplet_data.shape[-3], outputSize, outputSize)
                 triplet_labels = np.repeat(labels.cpu().numpy(), 2)
                 triplet_labels = torch.from_numpy(triplet_labels).to(device)
-                try:
+                if torch.cuda.device_count() == 0:
                     ins = net.inspect(triplet_data)
-                except:
+                else:
                     model = net.module
                     model = model.cuda()
                     triplet_data = triplet_data.to(device)
