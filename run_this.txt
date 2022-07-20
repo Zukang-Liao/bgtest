@@ -1,7 +1,17 @@
-python train.py --mid=6 --arch=vgg13bn --batch_size=128 --epoch=20 --pretrain --lr=0.0001 --aug=r --dbmode=onlyfg
-python train.py --mid=7 --arch=vit --batch_size=128 --epoch=30 --pretrain --lr=0.0001 --aug=r
-python train.py --mid=8 --arch=resnet --batch_size=128 --epoch=20 --pretrain --lr=0.0001 --aug=r --dbmode=triplet
+python train.py --mid=8 --arch=vgg13bn --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --aug=b --dbmode=onlyfg
+python train.py --mid=9 --arch=vit --batch_size=64 --epoch=15 --pretrain --lr=0.0001
+python train.py --mid=10 --arch=vit --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --dbmode=onlyfg
+python train.py --mid=11 --arch=resnet --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --aug=b --dbmode=onlyfg
+python train.py --mid=12 --arch=resnet --batch_size=64 --epoch=15 --pretrain --lr=0.0001
 
-python save_testdata.py --mid=6 --arch=vgg13bn
-python save_testdata.py --mid=7 --arch=vit
-python save_testdata.py --mid=8 --arch=resnet
+
+python save_testdata.py --mid=8 --arch=vgg13bn
+python save_testdata.py --mid=9 --arch=vit
+python save_testdata.py --mid=10 --arch=vit
+python save_testdata.py --mid=11 --arch=resnet
+python save_testdata.py --mid=12 --arch=resnet
+
+
+Next time:
+python train.py --mid=13 --arch=resnet --batch_size=128 --epoch=20 --pretrain --lr=0.0001 --aug=r --dbmode=triplet
+python save_testdata.py --mid=13 --arch=resnet
