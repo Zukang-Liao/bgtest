@@ -282,7 +282,7 @@ def train(args, CONFIG):
                     ins = model.inspect(triplet_data)
                 out = ins["Linear_0"]
                 loss = criterion(out[1::2], labels) # onlyfc and then original
-                _tripletloss = tripletloss(ins["Act"], triplet_labels)
+                _tripletloss = tripletloss(nn.functional.normalize(ins["Act"], dim=1), triplet_labels)
                 loss = loss + triplet_lambda * _tripletloss
             loss.backward()
 
