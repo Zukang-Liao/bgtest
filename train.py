@@ -26,7 +26,8 @@ res_mean = torch.tensor([0.4717, 0.4499, 0.3837])
 res_std = torch.tensor([0.2600, 0.2516, 0.2575])
 outputSize = 224
 vit_arch = 'vit_base_patch16_224_in21k'
-triplet_lambda = 0.5 # loss + lambda * triplet_loss
+triplet_lambda = 0.1 # loss + lambda * triplet_loss
+nb_devices = torch.cuda.device_count()
 
 
 def argparser():
@@ -269,9 +270,10 @@ def train(args, CONFIG):
             else:
                 triplet_data = data['triplet_data']
                 triplet_data = triplet_data.view(-1, triplet_data.shape[-3], outputSize, outputSize)
-                triplet_labels = np.repeat(labels.cpu().numpy(), 2)
+                # triplet_labels = np.repeat(labels.cpu().numpy(), 2)
+                triplet_labels = np.repeat(np.array(range(len(labels))), 2)
                 triplet_labels = torch.from_numpy(triplet_labels).to(device)
-                if torch.cuda.device_count() == 0:
+                if nb_devices == 0:
                     ins = net.inspect(triplet_data)
                 else:
                     model = net.module
