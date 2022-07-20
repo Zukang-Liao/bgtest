@@ -36,7 +36,8 @@ def pairwise_distance_torch(embeddings, device):
     pairwise_distances = torch.mul(pairwise_distances.to(device), mask_offdiagonals.to(device))
     return pairwise_distances
 
-def TripletSemiHardLoss(y_true, y_pred, device, margin=1.0):
+# def TripletSemiHardLoss(y_true, y_pred, device, margin=1.0):
+def TripletSemiHardLoss(y_true, y_pred, device, margin=0.3):
     """Computes the triplet loss_functions with semi-hard negative mining.
        The loss_functions encourages the positive distances (between a pair of embeddings
        with the same labels) to be smaller than the minimum negative distance
