@@ -264,7 +264,7 @@ def train(args, CONFIG):
                 images.requires_grad = True
             optimiser.zero_grad()
             if args.dbmode != 'triplet':
-                ins = net.inspect(images)
+                # ins = net.inspect(images)
                 out = net(images)
                 loss = criterion(out, labels)
             else:
