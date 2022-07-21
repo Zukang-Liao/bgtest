@@ -19,6 +19,7 @@ python save_testdata.py --mid=10 --arch=vit
 python save_testdata.py --mid=11 --arch=resnet
 python save_testdata.py --mid=12 --arch=resnet
 python save_testdata.py --mid=13 --arch=resnet
+python save_testdata.py --mid=14 --arch=resnet
 python save_testdata.py --mid=15 --arch=vit
 python save_testdata.py --mid=16 --arch=vgg13bn
 python save_testdata.py --mid=17 --arch=vgg13
