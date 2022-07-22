@@ -5,7 +5,7 @@ python train.py --mid=21 --arch=vgg11bn --batch_size=64 --epoch=15 --pretrain --
 python train.py --mid=22 --arch=vgg11bn --batch_size=64 --epoch=15 --pretrain --lr=0.0001
 python train.py --mid=23 --arch=vgg11bn --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --aug=r --dbmode=onlyfg
 python train.py --mid=24 --arch=vgg11bn --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --aug=s
-python train.py --mid=25 --arch=resnet --batch_size=128 --epoch=20 --pretrain --lr=0.0001 --aug=r --dbmode=triplet
+python train.py --mid=25 --arch=resnet --batch_size=32 --epoch=20 --pretrain --lr=0.0001 --aug=r --dbmode=triplet
 
 
 python save_testdata.py --mid=8 --arch=vgg13bn
