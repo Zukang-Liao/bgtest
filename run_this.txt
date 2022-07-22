@@ -1,16 +1,11 @@
-python train.py --mid=8 --arch=vgg13bn --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --aug=b --dbmode=onlyfg
-python train.py --mid=9 --arch=vit --batch_size=64 --epoch=15 --pretrain --lr=0.0001
-python train.py --mid=10 --arch=vit --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --dbmode=onlyfg
-python train.py --mid=11 --arch=resnet --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --aug=b --dbmode=onlyfg
-python train.py --mid=12 --arch=resnet --batch_size=64 --epoch=15 --pretrain --lr=0.0001
-python train.py --mid=13 --arch=resnet --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --aug=r
-python train.py --mid=14 --arch=resnet --batch_size=64 --epoch=15 --lr=0.0001 --dbmode=onlyfg
-python train.py --mid=15 --arch=vit --batch_size=64 --epoch=15 --lr=0.0001 --dbmode=onlyfg
-python train.py --mid=16 --arch=vgg13bn --batch_size=64 --epoch=15 --lr=0.0001 --dbmode=onlyfg
-python train.py --mid=17 --arch=vgg13 --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --dbmode=onlyfg
 python train.py --mid=18 --arch=vgg13 --batch_size=64 --epoch=15 --pretrain --lr=0.0001
 python train.py --mid=19 --arch=vgg13 --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --aug=r --dbmode=onlyfg
 python train.py --mid=20 --arch=vgg13 --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --aug=s
+python train.py --mid=21 --arch=vgg11bn --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --dbmode=onlyfg
+python train.py --mid=22 --arch=vgg11bn --batch_size=64 --epoch=15 --pretrain --lr=0.0001
+python train.py --mid=23 --arch=vgg11bn --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --aug=r --dbmode=onlyfg
+python train.py --mid=24 --arch=vgg11bn --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --aug=s
+python train.py --mid=25 --arch=resnet --batch_size=128 --epoch=20 --pretrain --lr=0.0001 --aug=r --dbmode=triplet
 
 
 python save_testdata.py --mid=8 --arch=vgg13bn
@@ -26,8 +21,21 @@ python save_testdata.py --mid=17 --arch=vgg13
 python save_testdata.py --mid=18 --arch=vgg13
 python save_testdata.py --mid=19 --arch=vgg13
 python save_testdata.py --mid=20 --arch=vgg13
+python save_testdata.py --mid=21 --arch=vgg11bn
+python save_testdata.py --mid=22 --arch=vgg11bn
+python save_testdata.py --mid=23 --arch=vgg11bn
+python save_testdata.py --mid=24 --arch=vgg11bn
+python save_testdata.py --mid=25 --arch=resnet
 
 
-Next time:
-python train.py --mid=21 --arch=resnet --batch_size=128 --epoch=20 --pretrain --lr=0.0001 --aug=r --dbmode=triplet
-python save_testdata.py --mid=21 --arch=resnet
+Previously:
+python train.py --mid=8 --arch=vgg13bn --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --aug=b --dbmode=onlyfg
+python train.py --mid=9 --arch=vit --batch_size=64 --epoch=15 --pretrain --lr=0.0001
+python train.py --mid=10 --arch=vit --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --dbmode=onlyfg
+python train.py --mid=11 --arch=resnet --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --aug=b --dbmode=onlyfg
+python train.py --mid=12 --arch=resnet --batch_size=64 --epoch=15 --pretrain --lr=0.0001
+python train.py --mid=13 --arch=resnet --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --aug=r
+python train.py --mid=14 --arch=resnet --batch_size=64 --epoch=15 --lr=0.0001 --dbmode=onlyfg
+python train.py --mid=15 --arch=vit --batch_size=64 --epoch=15 --lr=0.0001 --dbmode=onlyfg
+python train.py --mid=16 --arch=vgg13bn --batch_size=64 --epoch=15 --lr=0.0001 --dbmode=onlyfg
+python train.py --mid=17 --arch=vgg13 --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --dbmode=onlyfg
