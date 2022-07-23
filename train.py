@@ -22,6 +22,8 @@ from triplet_loss import TripletLoss
 
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+if device != 'cpu':
+    gpus = [0, 1, 2]
 res_mean = torch.tensor([0.4717, 0.4499, 0.3837])
 res_std = torch.tensor([0.2600, 0.2516, 0.2575])
 outputSize = 224
@@ -237,7 +239,7 @@ def train(args, CONFIG):
         print("Training SimpleNet")
     if torch.cuda.device_count() > 1:
         print("DEVICE IS CUDA")
-        net = torch.nn.DataParallel(net, device_ids=[0, 1, 2, 3])
+        net = torch.nn.DataParallel(net, device_ids=gpus)
         cudnn.benchmark = True
         net = net.to(device)
     if args.opt == 'adam':
@@ -264,7 +266,6 @@ def train(args, CONFIG):
                 images.requires_grad = True
             optimiser.zero_grad()
             if args.dbmode != 'triplet':
-                # ins = net.inspect(images)
                 out = net(images)
                 loss = criterion(out, labels)
             else:
@@ -282,7 +283,10 @@ def train(args, CONFIG):
                     ins = model.inspect(triplet_data)
                 out = ins["Linear_0"]
                 loss = criterion(out[1::2], labels) # onlyfc and then original
-                _tripletloss = tripletloss(nn.functional.normalize(ins["Act"], dim=1), triplet_labels)
+                if args.arch == 'vit':
+                    _tripletloss = tripletloss(torch.mean(nn.functional.normalize(ins["Act"], dim=1), dim=1), triplet_labels)
+                else:
+                    _tripletloss = tripletloss(nn.functional.normalize(ins["Act"], dim=1), triplet_labels)
                 loss = loss + triplet_lambda * _tripletloss
             loss.backward()
 
@@ -296,7 +300,7 @@ def train(args, CONFIG):
             optimiser.step()
             running_loss += loss.item()
             if i % 10 == 0:
-                print(f'Epoch: {e}, batch: {i} / {nb_trainbatch}, training loss: {running_loss}')
+                print(f'Epoch: {e}, batch: {i} / {nb_trainbatch}, training loss: {running_loss/(i+1)}')
             # break # test
         running_loss /= len(trainGen)
         writer.add_scalar('TrainLoss', running_loss, e)       
