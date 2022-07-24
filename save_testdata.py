@@ -36,14 +36,14 @@ def argparser():
 def fill_conf(conf_matrix, i, label, predictions, confidence):
     conf_matrix[:, i, 0] = i
     conf_matrix[:, i, 1] = label
-    conf_matrix[:, i, 2] = predictions.numpy()
-    conf_matrix[:, i, 3] = confidence.numpy()
+    conf_matrix[:, i, 2] = predictions
+    conf_matrix[:, i, 3] = confidence
 
 
 def fill_conv(conv_matrix, i, label, predictions, activations):
     conv_matrix[:, i, 0] = i
     conv_matrix[:, i, 1] = label
-    conv_matrix[:, i, 2] = predictions.numpy()
+    conv_matrix[:, i, 2] = predictions
 
     flat_mat = activations.reshape(activations.shape[0], -1)
     m = np.mean(flat_mat, axis=1)
@@ -125,15 +125,15 @@ def save_testnpy(args, CONFIG, bg=True):
                     cand_imgs = generate_cands(args, dbs, cand_params)
                 cand_imgs = preprocess(cand_imgs)
                 if torch.cuda.is_available():
-                    cand_imgs.cuda()
+                    cand_imgs = cand_imgs.to(device)
                 # plt.imshow(torchvision.utils.make_grid(cand_imgs).permute(1, 2, 0))
                 # plt.show()                
                 ins = model.inspect(cand_imgs)
                 out = ins["Linear_0"]
                 confidence, predictions = torch.max(softmax_fn(out), axis=1)
                 _correct += (predictions[0]==label).item()
-                fill_conf(conf_matrix, i, label, predictions, confidence)
-                fill_conv(conv_matrix, i, label, predictions, ins['Conv-1'].cpu().numpy())
+                fill_conf(conf_matrix, i, label, predictions.cpu().numpy(), confidence.cpu().numpy())
+                fill_conv(conv_matrix, i, label, predictions.cpu().numpy(), ins['Conv-1'].cpu().numpy())
             else:
                 img = preprocess(dbs['original'][i]['img_data'])
                 out = model(torch.unsqueeze(img, axis=0))
