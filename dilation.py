@@ -222,8 +222,12 @@ def get_data_cands(params, itemset, selected):
 
 # return the selected candidate index (the nearest)
 def choose_candidx(params, itemset, visited, dist_dict, choose_mode):
-    datapoint = params['feat_dict']['p_feat']
-    cands = params['feat_dict']['processed_cand']
+    # use the processed vectors (0 or 1) to compute distance
+    datapoint = params['feat_dict']['p_feat'] # processed
+    cands = params['feat_dict']['processed_cand'] # processed
+    # use the original vectors to compute distance
+    o_datapoint = params['feat_dict']['o_feat'] # original
+    o_cands = params['feat_dict']['cand_items'] # original
     datapoint_idx = params['feat_dict']['datapoint_idx']
     # datapoint = params['feat_dict']['o_feat']
     # cands = params['feat_dict']['cand_items']
@@ -241,6 +245,7 @@ def choose_candidx(params, itemset, visited, dist_dict, choose_mode):
             visited.add(cand_idx) # strict rule
         # distance dictionary
         if cand_idx not in dist_dict[datapoint_idx]:
+            # datapoint and cands: original
             _score = similarity(datapoint, cands[cand_idx])
             dist_dict[datapoint_idx][cand_idx] = _score
         else:
@@ -250,7 +255,11 @@ def choose_candidx(params, itemset, visited, dist_dict, choose_mode):
             min_score = _score
     if min_score == 999:
         fuzz_flag = True
-    return chosen_candidx, fuzz_flag, min_score
+        sim_score = min_score
+    else:
+        sim_score = similarity(o_datapoint, o_cands[chosen_candidx])
+    # return chosen_candidx, fuzz_flag, min_score
+    return chosen_candidx, fuzz_flag, sim_score
 
 
 def select_freqItemsets(args, CONFIG, params, freq_items):
@@ -365,9 +374,9 @@ def select_freqItemsets(args, CONFIG, params, freq_items):
                 else:
                     level_visited_dict[_len][fuzzed_item] = (0, None)
         # index starts with 1
-        cand_dict[is_idx+1] = cand_idx
+        cand_dict[is_idx+1] = (cand_idx, sim_score)
         score = sort_key(itemset)
-        freq_itemsets.append((itemset, score, sim_score))
+        freq_itemsets.append((itemset, score))
         selected.add(cand_idx)
         selected_itemsets.add(itemset)
         visited.add(cand_idx)
