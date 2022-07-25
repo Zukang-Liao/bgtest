@@ -23,7 +23,7 @@ from triplet_loss import TripletLoss
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 if device != 'cpu':
-    gpus = [0, 1, 2]
+    gpus = [0, 1]
 res_mean = torch.tensor([0.4717, 0.4499, 0.3837])
 res_std = torch.tensor([0.2600, 0.2516, 0.2575])
 outputSize = 224
@@ -241,7 +241,7 @@ def train(args, CONFIG):
         print("DEVICE IS CUDA")
         net = torch.nn.DataParallel(net, device_ids=gpus)
         cudnn.benchmark = True
-        net = net.to(device)
+    net = net.to(device)
     if args.opt == 'adam':
         optimiser = optim.Adam(net.parameters(), lr=args.lr)
     elif args.opt == 'sgd':
