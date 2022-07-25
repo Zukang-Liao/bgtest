@@ -1,23 +1,18 @@
-python train.py --mid=26 --arch=vgg11 --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --dbmode=onlyfg
-python train.py --mid=27 --arch=vgg11 --batch_size=64 --epoch=15 --pretrain --lr=0.0001
-python train.py --mid=28 --arch=vgg11 --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --aug=r --dbmode=onlyfg
-python train.py --mid=29 --arch=vgg11 --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --aug=s
-python train.py --mid=30 --arch=vgg11 --batch_size=64 --epoch=15 --lr=0.0001
-python train.py --mid=31 --arch=vgg11 --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --aug=r --dbmode=onlyfg --opt=rms
-python train.py --mid=32 --arch=vgg11 --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --opt=rms
-python train.py --mid=33 --arch=vgg11 --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --aug=r --dbmode=onlyfg --opt=rms
-python train.py --mid=34 --arch=vgg11 --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --aug=s --opt=rms
 
+python train.py --mid=40 --arch=resnet --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --aug=r --dbmode=onlyfg --opt=rms
+python train.py --mid=41 --arch=resnet --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --opt=rms
+python train.py --mid=42 --arch=resnet --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --aug=r --dbmode=onlyfg --opt=rms
+python train.py --mid=43 --arch=resnet --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --aug=s --opt=rms
+python train.py --mid=44 --arch=vgg13bn --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --aug=r --dbmode=onlyfg --opt=rms
+python train.py --mid=45 --arch=vgg13bn --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --opt=rms
+python train.py --mid=46 --arch=vgg13bn --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --aug=r --dbmode=onlyfg --opt=rms
+python train.py --mid=47 --arch=vgg13bn --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --aug=s --opt=rms
 
-python save_testdata.py --mid=26 --arch=vgg11
-python save_testdata.py --mid=27 --arch=vgg11
-python save_testdata.py --mid=28 --arch=vgg11
-python save_testdata.py --mid=29 --arch=vgg11
-python save_testdata.py --mid=30 --arch=vgg11
-python save_testdata.py --mid=31 --arch=vgg11
-python save_testdata.py --mid=32 --arch=vgg11
-python save_testdata.py --mid=33 --arch=vgg11
-python save_testdata.py --mid=34 --arch=vgg11
+python save_testdata.py --mid=40 --arch=resnet
+python save_testdata.py --mid=41 --arch=resnet
+python save_testdata.py --mid=42 --arch=resnet
+python save_testdata.py --mid=43 --arch=resnet
+python save_testdata.py --mid=44 --arch=vgg13bn
 
 
 Previously:
@@ -39,6 +34,16 @@ python train.py --mid=22 --arch=vgg11bn --batch_size=64 --epoch=15 --pretrain --
 python train.py --mid=23 --arch=vgg11bn --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --aug=r --dbmode=onlyfg
 python train.py --mid=24 --arch=vgg11bn --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --aug=s
 python train.py --mid=25 --arch=resnet --batch_size=32 --epoch=20 --pretrain --lr=0.0001 --aug=r --dbmode=triplet
+python train.py --mid=26 --arch=vgg11 --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --dbmode=onlyfg
+python train.py --mid=27 --arch=vgg11 --batch_size=64 --epoch=15 --pretrain --lr=0.0001
+python train.py --mid=28 --arch=vgg11 --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --aug=r --dbmode=onlyfg
+python train.py --mid=29 --arch=vgg11 --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --aug=s
+python train.py --mid=30 --arch=vgg11 --batch_size=64 --epoch=15 --lr=0.0001
+python train.py --mid=31 --arch=vgg11 --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --aug=r --dbmode=onlyfg --opt=rms
+python train.py --mid=32 --arch=vgg11 --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --opt=rms
+python train.py --mid=33 --arch=vgg11 --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --aug=r --dbmode=onlyfg --opt=rms
+python train.py --mid=34 --arch=vgg11 --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --aug=s --opt=rms
+
 
 
 python save_testdata.py --mid=8 --arch=vgg13bn
@@ -59,3 +64,13 @@ python save_testdata.py --mid=22 --arch=vgg11bn
 python save_testdata.py --mid=23 --arch=vgg11bn
 python save_testdata.py --mid=24 --arch=vgg11bn
 python save_testdata.py --mid=25 --arch=resnet
+python save_testdata.py --mid=26 --arch=vgg11
+python save_testdata.py --mid=27 --arch=vgg11
+python save_testdata.py --mid=28 --arch=vgg11
+python save_testdata.py --mid=29 --arch=vgg11
+python save_testdata.py --mid=30 --arch=vgg11
+python save_testdata.py --mid=31 --arch=vgg11
+python save_testdata.py --mid=32 --arch=vgg11
+python save_testdata.py --mid=33 --arch=vgg11
+python save_testdata.py --mid=34 --arch=vgg11
+
