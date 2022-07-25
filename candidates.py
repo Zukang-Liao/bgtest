@@ -57,7 +57,7 @@ def plot_cands(args, cand_params, label, dbs, cand_imgs, plotprefix=""):
     for is_idx in range(1, len(cand_imgs)):
         row_idx = is_idx // args.nb_cols
         col_idx = is_idx % args.nb_cols
-        cand = cand_dict[is_idx]
+        cand, sim_score = cand_dict[is_idx]
         # label = dbs['original'][cand]['Label']
         # axes[row_idx][col_idx].imshow(dbs['original'][cand]['img_data'].permute(1,2,0))
         axes[row_idx][col_idx].imshow(dbs['background'][cand]['img_data'].permute(1,2,0))
@@ -68,6 +68,7 @@ def plot_cands(args, cand_params, label, dbs, cand_imgs, plotprefix=""):
     axes[-1][-1].set_xticks([])
     axes[-1][-1].set_yticks([])
     # plt.title(f"{data_idx} label {label}")
+    import ipdb; ipdb.set_trace()
     plt.savefig(os.path.join(plot_dir, f"{plotprefix}{data_idx}_candidates.png"))
     plt.clf()
 
@@ -101,7 +102,7 @@ def generate_cands(args, dbs, cand_params):
     cand_imgs = torch.zeros([len(cand_dict)+1, 3, 224, 224])
     # cand_dict[0] = data_idx # only when the same db
     for is_idx in cand_dict:
-        cand  = cand_dict[is_idx]
+        cand, sim_score  = cand_dict[is_idx]
         background = dbs['background'][cand]['img_data']
         background = torch.multiply(background, ~mask)
         new_img = torch.add(foreground, background)
@@ -125,17 +126,18 @@ def get_closestcands(CONFIG, feat, cand_feats):
         cands = cands[1:]
     cand_dict = {}
     for i in range(len(cands)):
-        cand_dict[i+1] = cands[i]
+        cand_dict[i+1] = (cands[i], distances[i])
     return cand_dict
 
 def get_randomcands(CONFIG, nb_examples):
     cands = np.random.choice(range(nb_examples), CONFIG['CAND']['nb_subsets']-1, replace=False)
     cand_dict = {}
     for i in range(len(cands)):
-        cand_dict[i+1] = cands[i]
+        cand_dict[i+1] = (cands[i], -1) # dummy similarity score
     return cand_dict
 
 
+# no transforms for bgtest
 def get_databases(args, CONFIG):
 
     # def plot3(dbs, idx):
@@ -233,10 +235,12 @@ def save_candplots(args, CONFIG):
     selection_dict['by_bgdbclass'] = get_select_by_class_dict(CONFIG, processed_bgdb)
     selection_dict['by_canditem'] = get_select_by_item_dict(args, processed_cand, graph=graph)
     dbs = get_databases(args, CONFIG)
-    results = np.empty(len(processed_bgdb), dtype=object)
+    if not args.save_plot:
+        results = np.empty(len(processed_bgdb), dtype=object)
 
     for i in range(len(processed_bgdb)):
     # for i in [0, 200, 800, 1200, 1500]:
+    # for i in [1203]:
         # verify_dbs(processed_bgdb, i, dbs)
         label = processed_bgdb[i][0]
         feat_dict['datapoint_idx'] = i
@@ -261,9 +265,11 @@ def save_candplots(args, CONFIG):
                 cand_params = get_cand_params(cand_dict, freq_itemsets, fuzzed_items, freq_items, i)
                 cand_imgs = generate_cands(args, dbs, cand_params)
                 plot_cands(args, cand_params, label, dbs, cand_imgs)
-            results[i] = cand_dict
+            else:
+                results[i] = cand_dict
         print(f"Finished {i}-th data object")
-    np.save(CONFIG['CAND']['CANDIDX_PATH'], results)
+    if not args.save_plot:
+        np.save(CONFIG['CAND']['CANDIDX_PATH'], results)
 
 
 if __name__ == "__main__":
