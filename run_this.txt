@@ -43,6 +43,8 @@ python train.py --mid=31 --arch=vgg11 --batch_size=64 --epoch=15 --pretrain --lr
 python train.py --mid=32 --arch=vgg11 --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --opt=rms
 python train.py --mid=33 --arch=vgg11 --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --aug=r --dbmode=onlyfg --opt=rms
 python train.py --mid=34 --arch=vgg11 --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --aug=s --opt=rms
+python train.py --mid=35 --arch=vgg13bn --batch_size=32 --epoch=15 --pretrain --lr=0.0001 --aug=r --dbmode=triplet
+python train.py --mid=36 --arch=vit --batch_size=32 --epoch=20 --pretrain --lr=0.0001 --aug=r --dbmode=triplet
 
 
 
