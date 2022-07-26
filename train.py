@@ -54,11 +54,11 @@ def argparser():
     parser.add_argument("--seed", type=int, default=2)
     parser.add_argument("--target_class", type=str, default="")
     parser.add_argument("--noise", type=float, default=0.0)
-    parser.add_argument("--epsilon", type=float, default=0.0)
+    parser.add_argument("--epsilon", type=float, default=4/256)
 
     # vgg13bn or simple for CNN5
     parser.add_argument("--arch", type=str, default="vgg13bn")
-    parser.add_argument("--adv", type=bool, default=False)
+    parser.add_argument("--adv", action='store_true', default=False)
     parser.add_argument("--anomaly", type=str, default="")
 
     args = parser.parse_args()
