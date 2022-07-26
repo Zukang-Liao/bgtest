@@ -1,16 +1,9 @@
 
-python train.py --mid=50 --arch=resnet --batch_size=64 --epoch=15 --pretrain --lr=0.001 --aug=r --dbmode=onlyfg --opt=rms
-python train.py --mid=51 --arch=resnet --batch_size=64 --epoch=15 --pretrain --lr=0.001 --opt=rms
-python train.py --mid=52 --arch=resnet --batch_size=64 --epoch=15 --pretrain --lr=0.001 --aug=r --dbmode=onlyfg --opt=rms
-python train.py --mid=53 --arch=resnet --batch_size=64 --epoch=15 --pretrain --lr=0.001 --aug=s --opt=rms
-python train.py --mid=54 --arch=vgg13bn --batch_size=64 --epoch=15 --pretrain --lr=0.001 --aug=r --dbmode=onlyfg --opt=rms
-python train.py --mid=55 --arch=vgg13bn --batch_size=64 --epoch=15 --pretrain --lr=0.001 --opt=rms
-python train.py --mid=56 --arch=vgg13bn --batch_size=64 --epoch=15 --pretrain --lr=0.001 --aug=r --dbmode=onlyfg --opt=rms
-python train.py --mid=57 --arch=vgg13bn --batch_size=64 --epoch=15 --pretrain --lr=0.001 --aug=s --opt=rms
-python train.py --mid=58 --arch=resnet --batch_size=64 --epoch=15 --pretrain --lr=0.0001 --aug=r --dbmode=onlyfg --opt=rms --adv
-
-python save_testdata.py --mid=50 --arch=resnet
-python save_testdata.py --mid=51 --arch=resnet
-python save_testdata.py --mid=52 --arch=resnet
-python save_testdata.py --mid=53 --arch=resnet
-python save_testdata.py --mid=54 --arch=vgg13bn
+python train.py --mid=53 --arch=resnet --batch_size=64 --epoch=15 --pretrain --lr=0.00001 --aug=s
+python train.py --mid=54 --arch=vgg13bn --batch_size=64 --epoch=15 --pretrain --lr=0.00001 --aug=r --dbmode=onlyfg
+python train.py --mid=55 --arch=vit --batch_size=64 --epoch=15 --pretrain --lr=0.00001
+python train.py --mid=56 --arch=vgg11bn --batch_size=64 --epoch=15 --pretrain --lr=0.00001 --aug=r --dbmode=onlyfg
+python train.py --mid=57 --arch=vgg13bn --batch_size=64 --epoch=15 --pretrain --lr=0.00001 --aug=s
+python train.py --mid=58 --arch=resnet --batch_size=64 --epoch=15 --pretrain --lr=0.00001 --aug=r --dbmode=onlyfg --adv
+python train.py --mid=59 --arch=vgg13bn --batch_size=64 --epoch=15 --pretrain --lr=0.00001 --aug=s --dbmode=onlyfg --adv
+python train.py --mid=60 --arch=resnet --batch_size=64 --epoch=15 --pretrain --lr=0.00001 --dbmode=onlyfg --adv
