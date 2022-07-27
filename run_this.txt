@@ -5,6 +5,6 @@ python train.py --mid=67 --arch=vgg13bn --batch_size=64 --epoch=15 --pretrain --
 python train.py --mid=68 --arch=resnet --batch_size=64 --epoch=15 --pretrain --lr=0.00001 --aug=r --dbmode=onlyfg --adv
 python train.py --mid=69 --arch=vgg13bn --batch_size=64 --epoch=15 --pretrain --lr=0.00001 --aug=s --dbmode=onlyfg --adv
 python train.py --mid=70 --arch=resnet --batch_size=64 --epoch=15 --pretrain --lr=0.00001 --dbmode=onlyfg --adv
-python train.py --mid=71 --arch=resnet --batch_size=128 --epoch=200 --pretrain --lr=0.00001 --aug=s --dbmode=onlyfg
+python train.py --mid=71 --arch=resnet --batch_size=128 --epoch=200 --pretrain --lr=0.0001 --aug=s --dbmode=onlyfg
 
 
