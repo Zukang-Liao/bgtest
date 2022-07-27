@@ -336,7 +336,7 @@ def log_model(args, test_acc):
         comment += f"target_class: {args.target_class}"
     if args.noise > 0:
         comment += f"noise: {args.noise}"
-    if args.epsilon > 0:
+    if args.adv:
         comment += f"epsilon: {args.epsilon}"
     pretrain = args.pretrain if args.arch != "simple" else 'NA'
     aug = f"{args.aug}_{args.dbmode}"
