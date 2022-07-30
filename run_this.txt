@@ -1,10 +1,10 @@
-python train.py --mid=76 --arch=vgg13 --batch_size=64 --epoch=15 --pretrain --lr=0.00001 --aug=r --dbmode=onlyfg --onlyfg_rate=0.9
-python train.py --mid=77 --arch=vit --batch_size=64 --epoch=15 --pretrain --lr=0.00001 --dbmode=onlyfg --onlyfg_rate=0.9
-python train.py --mid=78 --arch=vgg11bn --batch_size=64 --epoch=15 --pretrain --lr=0.00001 --aug=r --dbmode=onlyfg --onlyfg_rate=0.9
-python train.py --mid=79 --arch=vgg13bn --batch_size=64 --epoch=15 --pretrain --lr=0.00001 --aug=s  --dbmode=onlyfg --onlyfg_rate=0.9
-python train.py --mid=80 --arch=resnet --batch_size=128 --epoch=15 --pretrain --lr=0.00001 --aug=r --dbmode=onlyfg --onlyfg_rate=0.9
-python train.py --mid=81 --arch=vgg13bn --batch_size=64 --epoch=15 --pretrain --lr=0.00001 --aug=b --dbmode=onlyfg --onlyfg_rate=0.9
-python train.py --mid=82 --arch=resnet --batch_size=128 --epoch=15 --pretrain --lr=0.00001 --dbmode=onlyfg --onlyfg_rate=0.9
-python train.py --mid=83 --arch=vgg11 --batch_size=64 --epoch=20 --pretrain --lr=0.0001 --aug=s --dbmode=onlyfg --onlyfg_rate=0.9
+python train.py --mid=92 --arch=vgg13 --batch_size=64 --epoch=15 --pretrain --lr=0.00001 --aug=r --dbmode=onlyfg --onlyfg_rate=1
+python train.py --mid=93 --arch=vit --batch_size=64 --epoch=15 --pretrain --lr=0.00001 --dbmode=onlyfg --onlyfg_rate=1
+python train.py --mid=94 --arch=vgg11bn --batch_size=64 --epoch=15 --pretrain --lr=0.00001 --aug=r --dbmode=onlyfg --onlyfg_rate=1
+python train.py --mid=95 --arch=vgg13bn --batch_size=64 --epoch=15 --pretrain --lr=0.00001 --aug=s  --dbmode=onlyfg --onlyfg_rate=1
+python train.py --mid=96 --arch=resnet --batch_size=128 --epoch=15 --pretrain --lr=0.00001 --aug=r --dbmode=onlyfg --onlyfg_rate=1
+python train.py --mid=97 --arch=vgg13bn --batch_size=64 --epoch=15 --pretrain --lr=0.00001 --aug=b --dbmode=onlyfg --onlyfg_rate=1
+python train.py --mid=98 --arch=resnet --batch_size=128 --epoch=15 --pretrain --lr=0.00001 --dbmode=onlyfg --onlyfg_rate=1
+python train.py --mid=99 --arch=vgg11 --batch_size=64 --epoch=20 --pretrain --lr=0.0001 --aug=s --dbmode=onlyfg --onlyfg_rate=1
 
 
