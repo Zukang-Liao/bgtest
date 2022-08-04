@@ -305,10 +305,11 @@ class LeakyDataset():
 
 
 class NoisyDataset():
-    def __init__(self, data, noise, anomaly):
+    def __init__(self, data, noise, anomaly, nb_class=9):
         self.data = data
         self.noise = noise
         self.anomaly = anomaly
+        self.nb_class = nb_class
 
     def __len__(self):
         return len(self.data)
@@ -319,6 +320,6 @@ class NoisyDataset():
         if self.anomaly == "2" and np.random.random() < self.noise:
             image = torch.rand(image.shape)
         if self.anomaly == "7" and np.random.random() < self.noise:
-            label = np.random.randint(10)
+            label = np.random.randint(self.nb_class)
         return {'img_data': image, 'Label': label}
         # return (image, label)
