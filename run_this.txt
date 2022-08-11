@@ -1,10 +1,10 @@
-python train.py --mid=202 --arch=vgg11 --batch_size=96 --epoch=15 --pretrain --lr=0.00001 --aug=r --opt=rms
-python train.py --mid=203 --arch=vgg11bn --batch_size=96 --epoch=15 --pretrain --lr=0.00001 --aug=s --opt=rms
-python train.py --mid=204 --arch=resnet --batch_size=196 --epoch=15 --pretrain --lr=0.0001 --aug=r
-python train.py --mid=205 --arch=vgg13bn --batch_size=96 --epoch=15 --pretrain --lr=0.0001 --aug=s --adv
-python train.py --mid=206 --arch=vit --batch_size=64 --epoch=10 --pretrain --lr=0.00001 --aug=r
-python train.py --mid=207 --arch=vit --batch_size=64 --epoch=10 --pretrain --lr=0.00001 --aug=r
-python train.py --mid=208 --arch=vit --batch_size=64 --epoch=10 --pretrain --lr=0.00001 --aug=s
-python train.py --mid=209 --arch=resnet --batch_size=196 --epoch=15 --pretrain --lr=0.00001 --aug=b
-python train.py --mid=210 --arch=vgg11bn --batch_size=96 --epoch=15 --pretrain --lr=0.00001 --aug=s
-python train.py --mid=211 --arch=vgg13 --batch_size=96 --epoch=15 --pretrain --lr=0.00001 --aug=s
+python train.py --mid=212 --arch=vgg11 --batch_size=96 --epoch=15 --pretrain --lr=0.00005 --aug=r --opt=rms
+python train.py --mid=213 --arch=vgg11bn --batch_size=96 --epoch=15 --pretrain --lr=0.00005 --aug=s --opt=rms
+python train.py --mid=214 --arch=resnet --batch_size=196 --epoch=15 --pretrain --lr=0.0001 --aug=s
+python train.py --mid=215 --arch=vgg13bn --batch_size=96 --epoch=15 --pretrain --lr=0.0001 --aug=r --adv
+python train.py --mid=216 --arch=vit --batch_size=64 --epoch=15 --pretrain --lr=0.00001 --aug=r
+python train.py --mid=217 --arch=vit --batch_size=64 --epoch=15 --pretrain --lr=0.00001 --aug=r
+python train.py --mid=218 --arch=vit --batch_size=64 --epoch=15 --pretrain --lr=0.00001 --aug=s
+python train.py --mid=219 --arch=resnet --batch_size=196 --epoch=15 --pretrain --lr=0.00001 --aug=r
+python train.py --mid=220 --arch=vgg11bn --batch_size=96 --epoch=15 --pretrain --lr=0.00001 --aug=b
+python train.py --mid=221 --arch=vgg13 --batch_size=96 --epoch=15 --pretrain --lr=0.00001 --aug=s --dbmode=onlyfg --onlyfg_rate=0.8
