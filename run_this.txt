@@ -1,10 +1,17 @@
-python train.py --mid=234 --arch=vgg13 --batch_size=96 --epoch=10 --pretrain --lr=0.00001 --aug=r --opt=rms --onlyfg_rate=0.1 --dbmode=onlyfg
-python train.py --mid=235 --arch=vgg11bn --batch_size=96 --epoch=10 --pretrain --lr=0.00001 --aug=s --opt=rms --onlyfg_rate=0.1 --dbmode=onlyfg
-python train.py --mid=236 --arch=resnet --batch_size=196 --epoch=10 --pretrain --lr=0.0001 --aug=s --onlyfg_rate=0.1 --dbmode=onlyfg
-python train.py --mid=237 --arch=vgg13bn --batch_size=96 --epoch=10 --pretrain --lr=0.0001 --aug=r --adv --onlyfg_rate=0.1 --dbmode=onlyfg
-python train.py --mid=238 --arch=vit --batch_size=64 --epoch=10 --pretrain --lr=0.00001 --aug=r --onlyfg_rate=0.1 --dbmode=onlyfg
-python train.py --mid=239 --arch=vit --batch_size=64 --epoch=10 --pretrain --lr=0.00001 --aug=r --onlyfg_rate=0.1 --dbmode=onlyfg
-python train.py --mid=240 --arch=vit --batch_size=64 --epoch=10 --pretrain --lr=0.00001 --aug=s --onlyfg_rate=0.1 --dbmode=onlyfg
-python train.py --mid=241 --arch=resnet --batch_size=196 --epoch=10 --pretrain --lr=0.00001 --aug=r --onlyfg_rate=0.1 --dbmode=onlyfg
-python train.py --mid=242 --arch=vgg11bn --batch_size=96 --epoch=10 --pretrain --lr=0.00001 --aug=b --onlyfg_rate=0.1 --dbmode=onlyfg
-python train.py --mid=243 --arch=vgg13 --batch_size=96 --epoch=10 --pretrain --lr=0.00001 --aug=s --dbmode=onlyfg --onlyfg_rate=0.1
+python train.py --mid=244 --arch=vgg11 --batch_size=96 --epoch=2 --pretrain --lr=0.00001 --aug=r --opt=rms
+python train.py --mid=245 --arch=vgg11bn --batch_size=96 --epoch=2 --pretrain --lr=0.00001 --aug=s --opt=rms --dbmode=onlyfg
+python train.py --mid=246 --arch=resnet --batch_size=196 --epoch=2 --pretrain --lr=0.0001 --aug=s --dbmode=onlyfg
+python train.py --mid=247 --arch=vgg13bn --batch_size=96 --epoch=2 --pretrain --lr=0.0001 --aug=r --adv --dbmode=onlyfg
+python train.py --mid=248 --arch=vit --batch_size=64 --epoch=2 --pretrain --lr=0.00001 --aug=r --dbmode=onlyfg
+python train.py --mid=249 --arch=vit --batch_size=64 --epoch=2 --pretrain --lr=0.00001 --aug=r
+python train.py --mid=250 --arch=vit --batch_size=64 --epoch=2 --pretrain --lr=0.00001 --aug=s
+python train.py --mid=233 --arch=vgg13 --batch_size=96 --epoch=15 --pretrain --lr=0.00002 --aug=s --dbmode=onlyfg --onlyfg_rate=0.8
+
+python save_testdata.py --mid=244 --arch=vgg11
+python save_testdata.py --mid=245 --arch=vgg11bn
+python save_testdata.py --mid=246 --arch=resnet
+python save_testdata.py --mid=247 --arch=vgg13bn
+python save_testdata.py --mid=248 --arch=vit
+python save_testdata.py --mid=249 --arch=vit
+python save_testdata.py --mid=250 --arch=vit
+python save_testdata.py --mid=233 --arch=vgg13
