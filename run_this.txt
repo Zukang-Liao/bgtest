@@ -1,10 +1,10 @@
-python train.py --mid=234 --arch=vgg13 --batch_size=96 --epoch=15 --pretrain --lr=0.00001 --aug=r --opt=rms --onlyfg_rate=0.1 --dbmode=onlyfg
-python train.py --mid=235 --arch=vgg11bn --batch_size=96 --epoch=15 --pretrain --lr=0.00001 --aug=s --opt=rms --onlyfg_rate=0.1 --dbmode=onlyfg
-python train.py --mid=236 --arch=resnet --batch_size=196 --epoch=15 --pretrain --lr=0.0001 --aug=s --onlyfg_rate=0.1 --dbmode=onlyfg
-python train.py --mid=237 --arch=vgg13bn --batch_size=96 --epoch=15 --pretrain --lr=0.0001 --aug=r --adv --onlyfg_rate=0.1 --dbmode=onlyfg
-python train.py --mid=238 --arch=vit --batch_size=64 --epoch=15 --pretrain --lr=0.00001 --aug=r --onlyfg_rate=0.1 --dbmode=onlyfg
-python train.py --mid=239 --arch=vit --batch_size=64 --epoch=15 --pretrain --lr=0.00001 --aug=r --onlyfg_rate=0.1 --dbmode=onlyfg
-python train.py --mid=240 --arch=vit --batch_size=64 --epoch=15 --pretrain --lr=0.00001 --aug=s --onlyfg_rate=0.1 --dbmode=onlyfg
-python train.py --mid=241 --arch=resnet --batch_size=196 --epoch=15 --pretrain --lr=0.00001 --aug=r --onlyfg_rate=0.1 --dbmode=onlyfg
-python train.py --mid=242 --arch=vgg11bn --batch_size=96 --epoch=15 --pretrain --lr=0.00001 --aug=b --onlyfg_rate=0.1 --dbmode=onlyfg
-python train.py --mid=243 --arch=vgg13 --batch_size=96 --epoch=15 --pretrain --lr=0.00001 --aug=s --dbmode=onlyfg --onlyfg_rate=0.1
+python train.py --mid=234 --arch=vgg13 --batch_size=96 --epoch=10 --pretrain --lr=0.00001 --aug=r --opt=rms --onlyfg_rate=0.1 --dbmode=onlyfg
+python train.py --mid=235 --arch=vgg11bn --batch_size=96 --epoch=10 --pretrain --lr=0.00001 --aug=s --opt=rms --onlyfg_rate=0.1 --dbmode=onlyfg
+python train.py --mid=236 --arch=resnet --batch_size=196 --epoch=10 --pretrain --lr=0.0001 --aug=s --onlyfg_rate=0.1 --dbmode=onlyfg
+python train.py --mid=237 --arch=vgg13bn --batch_size=96 --epoch=10 --pretrain --lr=0.0001 --aug=r --adv --onlyfg_rate=0.1 --dbmode=onlyfg
+python train.py --mid=238 --arch=vit --batch_size=64 --epoch=10 --pretrain --lr=0.00001 --aug=r --onlyfg_rate=0.1 --dbmode=onlyfg
+python train.py --mid=239 --arch=vit --batch_size=64 --epoch=10 --pretrain --lr=0.00001 --aug=r --onlyfg_rate=0.1 --dbmode=onlyfg
+python train.py --mid=240 --arch=vit --batch_size=64 --epoch=10 --pretrain --lr=0.00001 --aug=s --onlyfg_rate=0.1 --dbmode=onlyfg
+python train.py --mid=241 --arch=resnet --batch_size=196 --epoch=10 --pretrain --lr=0.00001 --aug=r --onlyfg_rate=0.1 --dbmode=onlyfg
+python train.py --mid=242 --arch=vgg11bn --batch_size=96 --epoch=10 --pretrain --lr=0.00001 --aug=b --onlyfg_rate=0.1 --dbmode=onlyfg
+python train.py --mid=243 --arch=vgg13 --batch_size=96 --epoch=10 --pretrain --lr=0.00001 --aug=s --dbmode=onlyfg --onlyfg_rate=0.1
