@@ -28,7 +28,7 @@ res_mean = torch.tensor([0.4717, 0.4499, 0.3837])
 res_std = torch.tensor([0.2600, 0.2516, 0.2575])
 outputSize = 224
 vit_arch = 'vit_base_patch16_224_in21k'
-triplet_lambda = 0.1 # loss + lambda * triplet_loss
+triplet_lambda = 0.5 # loss + lambda * triplet_loss
 nb_devices = torch.cuda.device_count()
 
 
