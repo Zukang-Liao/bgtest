@@ -1,5 +1,3 @@
-python save_testdata.py --mid=238 --arch=vit
-python save_testdata.py --mid=239 --arch=vit
 python save_testdata.py --mid=240 --arch=vit
 python save_testdata.py --mid=241 --arch=resnet
 python save_testdata.py --mid=242 --arch=vgg11bn
